@@ -1,0 +1,554 @@
+/* Private Trade Panel */
+.private-trade-panel {
+    display: grid;
+    /* Adjusted grid-template-columns to give more space, ensuring auto for center content */
+    grid-template-columns: minmax(0, 1fr) clamp(20rem, 25vw, 30rem) minmax(0, 1fr); /* Increased center column size significantly */
+    gap: var(--spacing-lg); /* Increased gap substantially */
+    border-radius: 0.8rem; /* Consistent border-radius with other modals/cards */
+    box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.5); /* Stronger shadow */
+    max-width: clamp(80rem, 90vw, 120rem); /* Max width for the entire trade panel */
+    margin: 0 auto; /* Center the panel within its container */
+}
+
+.trade-participant-panel {
+    background: linear-gradient(180deg, rgba(30, 20, 10, 0.9) 0%, rgba(20, 10, 5, 0.9) 100%);
+    border: 0.2rem solid #6b5011; /* Thicker border */
+    border-radius: 0.8rem; /* Consistent border-radius */
+    padding: var(--spacing-md); /* Increased padding */
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm); /* Increased gap for vertical spacing */
+    box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.4); /* Stronger shadow */
+    position: relative; /* Needed for .trade-selection-modal-container absolute positioning */
+    overflow: hidden; /* Hide anything outside this panel's bounds */
+}
+
+.trade-participant-panel h3 {
+    font-family: 'Cinzel Decorative', serif;
+    color: #ffd700;
+    text-align: center;
+    margin-bottom: var(--spacing-sm); /* Increased margin */
+    font-size: clamp(1.4rem, 2vw, 1.8rem); /* Increased font size */
+    text-shadow: 0.1rem 0.1rem 0.3rem rgba(0,0,0,0.6); /* Stronger text shadow */
+    border-bottom: 0.1rem solid rgba(139,105,20,0.5); /* Thicker border */
+    padding-bottom: var(--spacing-xs); /* Increased padding */
+}
+
+.your-panel {
+    border-left: 0.3rem solid #4CAF50; /* Thicker accent border */
+}
+
+.npc-panel {
+    border-left: 0.3rem solid #FF9800; /* Thicker accent border */
+}
+
+.trade-negotiation-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md); /* Increased padding */
+    gap: var(--spacing-md); /* Increased gap */
+}
+
+.trade-negotiation-center > .trade-arrow-large,
+.trade-negotiation-center > #private-trade-summary,
+.trade-negotiation-center > .trade-balance-container,
+.trade-negotiation-center > #balance-scale-image,
+.trade-negotiation-center > .propose-trade-btn,
+.trade-negotiation-center > .suggest-counter-btn {
+    display: none; /* Controlled by JS for visibility */
+    width: 100%; /* Ensure buttons take full width when visible */
+    text-align: center; /* Center text within buttons */
+}
+
+.trade-arrow-large {
+    font-size: clamp(3rem, 4vw, 4.5rem); /* Increased font size significantly */
+    color: #ffd700;
+    animation: pulse 2s infinite;
+    text-shadow: 0 0 1rem rgba(255,215,0,0.8); /* Stronger glow */
+}
+
+/* Balance Scale */
+.trade-balance-container {
+    /* Removed, now provided by trade-shared-balance.css */
+}
+
+.trade-balance-bar {
+    /* Removed, now provided by trade-shared-balance.css */
+}
+
+.trade-balance-marker {
+    /* Removed, now provided by trade-shared-balance.css */
+}
+
+/* Reduce trade item icon sizes in the private trade panel (from user feedback) */
+.private-trade-panel .trade-item-entry .item-details img {
+    width: clamp(2rem, 2.5vw, 2.5rem) !important; /* Slightly smaller to fit better */
+    height: clamp(2rem, 2.5vw, 2.5rem) !important;
+    object-fit: contain;
+    margin-right: var(--spacing-xs); /* Adjusted margin */
+    image-rendering: pixelated;
+}
+
+/* Adjust icon alignment in trade cards */
+.private-trade-panel .item-details {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xxs); /* Adjusted gap */
+    flex-grow: 1; /* Allow details to take space */
+}
+
+/* NEW: Styles for the list of added items */
+.trade-items-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 30rem; /* Increased max-height for the list itself to fit taller items */
+    margin-bottom: var(--spacing-sm); /* Increased margin */
+    padding: var(--spacing-xs); /* Increased padding */
+}
+
+.trade-item-entry {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm); /* Increased spacing */
+    padding: var(--spacing-md); /* Larger padding */
+    background: rgba(139,105,20,0.1);
+    border: 0.1rem solid rgba(139,105,20,0.3); /* Thicker border */
+    border-radius: 0.6rem; /* Consistent border-radius */
+    margin-bottom: var(--spacing-sm); /* Increased margin */
+    font-size: calc(var(--font-size-base) * 1.3); /* Increased overall font size for entry */
+}
+
+.trade-item-entry .item-details span {
+    color: #e8d5b7;
+    font-size: calc(var(--font-size-base) * 1.3); /* Adjusted font size relative to new entry font size */
+    font-weight: 600;
+}
+
+.item-amount-controls {
+    display: flex;
+    flex-direction: column; /* Stack slider and buttons vertically */
+    align-items: flex-end; /* Align controls to the right */
+    gap: var(--spacing-xs); /* Adjusted gap */
+    flex-shrink: 0; /* Prevent controls from shrinking */
+}
+
+.amount-slider-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xxs); /* Reduced gap within slider wrapper */
+    width: 100%; /* Ensure slider wrapper takes full available width in column */
+}
+
+.trade-slider {
+    width: clamp(5rem, 6vw, 7rem); /* Reduced slider width */
+    height: 1rem; /* Thicker slider */
+}
+
+.slider-value {
+    font-size: calc(var(--font-size-base) * 1.1); /* Increased slider value text */
+    min-width: 3.5rem; /* Adjusted min-width */
+    text-align: center;
+}
+
+.amount-buttons {
+    display: flex;
+    gap: var(--spacing-xxs); /* Adjusted gap */
+    width: 100%; /* Ensure buttons take full available width in column */
+    justify-content: flex-end; /* Align buttons to the right */
+}
+
+.medieval-btn.compact-btn {
+    padding: var(--spacing-xs) var(--spacing-sm); /* Larger padding */
+    font-size: calc(var(--font-size-base) * 0.9); /* Larger button text */
+    height: var(--button-height); /* Larger button height */
+    min-width: clamp(4rem, 5vw, 5rem); /* Larger button width */
+}
+
+.medieval-btn.compact-remove-btn {
+    width: clamp(2.5rem, 3vw, 3rem); /* Larger remove button */
+    height: clamp(2.5rem, 3vw, 3rem);
+    font-size: calc(var(--font-size-base) * 1.2); /* Larger font size */
+    padding: 0;
+}
+
+.total-value {
+    color: #ffd700;
+    font-size: calc(var(--font-size-base) * 1.3); /* Increased total value font */
+    font-weight: bold;
+    text-align: center;
+    margin-top: var(--spacing-sm); /* Adjusted margin */
+}
+
+/* Leader Portrait Styling */
+.leader-portrait-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: var(--spacing-sm); /* Increased margin */
+    padding: var(--spacing-xs); /* Increased padding */
+    background: rgba(0,0,0,0.3);
+    border: 0.1rem solid #8b6914;
+    border-radius: 0.8rem;
+    box-shadow: inset 0 0 0.8rem rgba(0,0,0,0.2);
+}
+
+.leader-portrait {
+    width: clamp(7rem, 9vw, 10rem); /* Increased size for better visibility */
+    height: clamp(7rem, 9vw, 10rem); /* Increased size for better visibility */
+    border-radius: 50%;
+    border: 0.2rem solid #ffd700; /* Thicker border */
+    box-shadow: 0 0.4rem 1rem rgba(0,0,0,0.5); /* Stronger shadow */
+    margin-bottom: var(--spacing-xxs); /* Adjusted margin */
+    object-fit: cover; /* Ensure image fits without distortion */
+    image-rendering: pixelated; /* Ensure pixel art is rendered sharply */
+}
+
+.leader-name {
+    font-family: 'Cinzel Decorative', serif;
+    color: #e8d5b7;
+    font-size: calc(var(--font-size-base) * 1.3); /* Increased font size */
+    text-shadow: 0.1rem 0.1rem 0.2rem rgba(0,0,0,0.5);
+}
+
+/* Negotiation center buttons */
+.propose-trade-btn, .suggest-counter-btn {
+    width: 100%;
+    margin-top: var(--spacing-md); /* Increased margin */
+    font-size: calc(var(--font-size-base) * 1.2); /* Increased font size */
+    padding: var(--spacing-md) var(--spacing-lg); /* Larger padding */
+    height: auto; /* Let content define height */
+    min-height: calc(var(--button-height) * 2); /* Ensure a larger minimum height */
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+}
+
+.suggest-counter-btn {
+    background: linear-gradient(135deg, #1f778d 0%, #155d72 100%); /* Blueish gradient for distinction */
+    border-color: #3aa5c7;
+    color: #e8d5b7;
+    text-shadow: 0.1rem 0.1rem 0.2rem rgba(0,0,0,0.5);
+}
+
+.suggest-counter-btn:hover {
+    background: linear-gradient(135deg, #3aa5c7 0%, #1f778d 100%);
+    transform: translateY(-0.2rem);
+    box-shadow: 0 0.4rem 1.2rem rgba(0,0,0,0.3);
+}
+
+/* Fairness Indicator adjustments in private trade */
+#private-trade-summary .trade-fairness-indicator {
+    padding: var(--spacing-sm); /* Maintain good padding */
+    font-size: calc(var(--font-size-base) * 1.2); /* Slightly larger font */
+    margin-top: var(--spacing-md); /* Added margin */
+    margin-bottom: var(--spacing-sm); /* Added margin */
+}
+
+/* Overrides for balance bar within private trade */
+.private-trade-panel .trade-balance-container {
+    margin-top: var(--spacing-md); /* Increased margin */
+    margin-bottom: var(--spacing-md); /* Increased margin */
+    height: 3rem; /* Larger height */
+}
+
+.private-trade-panel .trade-balance-marker {
+    width: 0.8rem; /* Thicker marker */
+    border: 0.1rem solid #333; /* Thicker border */
+}
+
+#balance-scale-image {
+    width: clamp(90px, 12vw, 120px); /* Even larger scale image */
+    height: auto;
+    margin-top: var(--spacing-md); /* Increased margin */
+    margin-bottom: var(--spacing-md);
+}
+
+/* NEW: Styles for the combined item selection dropdown and filters */
+.trade-item-selector-combined {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm); /* Increased gap */
+    margin-bottom: var(--spacing-sm); /* Increased margin */
+    padding: var(--spacing-sm); /* Increased padding */
+    background: rgba(0,0,0,0.2);
+    border: 0.1rem solid rgba(139,105,20,0.4); /* Thicker border */
+    border-radius: 0.6rem; /* Consistent border radius */
+}
+
+.trade-item-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs); /* Increased gap */
+    justify-content: center;
+}
+
+.trade-item-filters .medieval-btn {
+    padding: var(--spacing-xs) var(--spacing-md); /* Larger padding */
+    font-size: calc(var(--font-size-base) * 0.95); /* Slightly larger font */
+    height: auto; /* Let content define height */
+    white-space: nowrap;
+}
+
+.trade-item-filters .medieval-btn.active {
+    background: linear-gradient(135deg, #ffd700 0%, #c9b037 100%);
+    color: #2c1810;
+    border-color: #ffd700;
+}
+
+.trade-item-select-dropdown {
+    background: rgba(0,0,0,0.6);
+    border: 0.15rem solid #8b6914; /* Thicker border */
+    color: #e8d5b7;
+    padding: var(--spacing-sm); /* Larger padding */
+    border-radius: 0.4rem; /* Consistent border radius */
+    font-size: calc(var(--font-size-base) * 1.1); /* Larger font size */
+    width: 100%;
+    box-sizing: border-box; /* Include padding in width */
+    -webkit-appearance: none; /* Remove default arrow */
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e8d5b7%22%20d%3D%22M287%20197.3L159.9%2060.4c-2.7-2.9-6.2-4.5-10-4.5s-7.3%201.6-10%204.5L5.4%20197.3c-3%203.2-5%207-5%2011.2s2%208.1%205%2011.2c2.7%202.9%206.2%204.5%2010%204.5h256.4c3.8%200%207.3-1.6%2010-4.5%203-3.2%205-7%205-11.2S290%20200.5%20287%20197.3z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+    background-repeat: no-repeat;
+    background-position: right 0.8em center;
+    background-size: 0.9em; /* Larger arrow */
+    padding-right: 3em; /* Make space for the larger arrow */
+    cursor: pointer;
+}
+
+.trade-item-select-dropdown:focus {
+    outline: none;
+    border-color: #ffd700;
+    box-shadow: 0 0 0.8rem rgba(255,215,0,0.5); /* Stronger shadow */
+}
+
+.add-item-btn-combined {
+    width: 100%;
+    margin-top: var(--spacing-xs); /* Adjusted margin */
+    font-size: calc(var(--font-size-base) * 1.1); /* Larger font */
+    padding: var(--spacing-sm); /* Larger padding */
+    height: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) { /* Adjusted breakpoint for larger screens */
+    .private-trade-panel {
+        grid-template-columns: 1fr; /* Collapse to single column earlier */
+        gap: var(--spacing-md); /* Smaller gap when collapsed */
+    }
+    
+    .trade-participant-panel {
+        padding: var(--spacing-sm);
+        gap: var(--spacing-xs);
+    }
+    
+    .trade-participant-panel h3 {
+        font-size: clamp(1.2rem, 1.8vw, 1.6rem);
+    }
+
+    .leader-portrait {
+        width: clamp(6rem, 8vw, 9rem); /* Retain larger size on medium screens */
+        height: clamp(6rem, 8vw, 9rem);
+    }
+    .leader-name {
+        font-size: calc(var(--font-size-base) * 1.2); /* Adjusted */
+    }
+
+    .trade-negotiation-center {
+        padding: var(--spacing-sm);
+        gap: var(--spacing-sm);
+    }
+
+    .trade-arrow-large {
+        font-size: clamp(2.5rem, 3.5vw, 4rem);
+    }
+
+    .trade-items-list {
+        max-height: 25rem; /* Adjust max-height for collapsed view */
+    }
+
+    .trade-item-entry {
+        padding: var(--spacing-sm); /* Adjusted padding */
+        font-size: calc(var(--font-size-base) * 1.2); /* Adjusted font size */
+    }
+
+    .private-trade-panel .trade-item-entry .item-details img {
+        width: clamp(2rem, 2.5vw, 2.5rem) !important;
+        height: clamp(2rem, 2.5vw, 2.5rem) !important;
+        margin-right: 0.2rem;
+    }
+
+    .trade-item-entry .item-details span,
+    .slider-value,
+    .total-value {
+        font-size: calc(var(--font-size-base) * 1.2); /* Adjusted font size */
+    }
+
+    .trade-slider {
+        width: clamp(5rem, 6vw, 7rem); /* Consistent slider width */
+    }
+    
+    /* Keep compact button changes from previous iteration for consistency */
+    .medieval-btn.compact-btn {
+        padding: 0.3rem 0.5rem;
+        font-size: calc(var(--font-size-base) * 0.8);
+        min-width: clamp(2.5rem, 3.5vw, 4rem);
+        height: var(--button-height);
+    }
+    .medieval-btn.compact-remove-btn {
+        width: clamp(2.5rem, 3vw, 3rem);
+        height: clamp(2.5rem, 3vw, 3rem);
+        font-size: calc(var(--font-size-base) * 1.2);
+        padding: 0;
+    }
+
+    .total-value {
+        font-size: calc(var(--font-size-base) * 1.2);
+    }
+
+    .propose-trade-btn, .suggest-counter-btn {
+        font-size: calc(var(--font-size-base) * 1.1);
+        padding: var(--spacing-sm) var(--spacing-md); /* Reverted to more generous padding */
+    }
+
+    /* ...existing styles... */
+
+    .trade-item-filters .medieval-btn {
+        font-size: calc(var(--font-size-base) * 0.9); /* Slightly larger */
+        padding: 0.4rem 0.7rem;
+    }
+    .trade-item-select-dropdown {
+        font-size: calc(var(--font-size-base) * 1.1); /* Match .add-item-btn-combined */
+        padding: var(--spacing-sm);
+        padding-right: 3em; /* More space for arrow */
+        background-size: 0.9em;
+    }
+    .add-item-btn-combined {
+        font-size: calc(var(--font-size-base) * 1.1); /* Larger */
+        padding: var(--spacing-sm);
+    }
+}
+
+@media (max-width: 768px) {
+    .private-trade-panel {
+        gap: var(--spacing-sm); /* Even smaller gap for very small screens */
+    }
+    
+    .trade-participant-panel {
+        padding: var(--spacing-xs);
+        gap: var(--spacing-xxs);
+    }
+
+    .trade-participant-panel h3 {
+        font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .leader-portrait {
+        width: clamp(5rem, 7vw, 8rem); /* Slightly smaller for small screens */
+        height: clamp(5rem, 7vw, 8rem);
+        margin-bottom: var(--spacing-xxs);
+    }
+    .leader-name {
+        font-size: calc(var(--font-size-base) * 1.1); /* Adjusted */
+    }
+
+    .trade-negotiation-center {
+        padding: var(--spacing-xs);
+        gap: var(--spacing-xs);
+    }
+
+    .trade-arrow-large {
+        font-size: clamp(2rem, 3vw, 3.5rem);
+    }
+
+    .trade-items-list {
+        max-height: 20rem; /* Further reduced height for small screens */
+    }
+
+    .trade-item-entry {
+        padding: var(--spacing-xs);
+        font-size: calc(var(--font-size-base) * 1.1); /* Adjusted */
+        margin-bottom: var(--spacing-xxs);
+    }
+
+    .private-trade-panel .trade-item-entry .item-details img {
+        width: clamp(1.8rem, 2.5vw, 2.2rem) !important;
+        height: clamp(1.8rem, 2.5vw, 2.2rem) !important;
+        margin-right: 0.2rem;
+    }
+
+    .trade-item-entry .item-details span,
+    .slider-value,
+    .total-value {
+        font-size: calc(var(--font-size-base) * 1.1); /* Adjusted font size */
+    }
+
+    .trade-slider {
+        width: clamp(4rem, 5.5vw, 6rem); /* Consistent slider width */
+        height: 1rem; /* Consistent height */
+    }
+
+    .medieval-btn.compact-btn {
+        padding: 0.3rem 0.5rem;
+        font-size: calc(var(--font-size-base) * 0.8);
+        min-width: clamp(2.5rem, 3.5vw, 4rem);
+        height: var(--button-height);
+    }
+    .medieval-btn.compact-remove-btn {
+        width: clamp(2.5rem, 3vw, 3rem);
+        height: clamp(2.5rem, 3vw, 3rem);
+        font-size: calc(var(--font-size-base) * 1.2);
+        padding: 0;
+    }
+
+    .propose-trade-btn, .suggest-counter-btn {
+        font-size: calc(var(--font-size-base) * 1);
+        padding: var(--spacing-xs) var(--spacing-sm); /* Consistent padding */
+        margin-top: var(--spacing-xs);
+    }
+
+    /* ...existing styles... */
+
+    .trade-item-filters .medieval-btn {
+        font-size: calc(var(--font-size-base) * 0.85);
+        padding: 0.3rem 0.6rem;
+    }
+    .trade-item-select-dropdown {
+        font-size: calc(var(--font-size-base) * 1);
+        padding: var(--spacing-xs);
+        padding-right: 2.5em;
+        background-size: 0.8em;
+    }
+    .add-item-btn-combined {
+        font-size: calc(var(--font-size-base) * 1);
+        padding: var(--spacing-xs);
+    }
+}
+
+@media (max-width: 480px) { /* Example for very small screens, adjust if needed */
+    .private-trade-panel {
+        max-width: 100%;
+        padding: 0.3rem;
+    }
+    .trade-item-filters .medieval-btn {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.5rem;
+    }
+    .trade-item-select-dropdown, .add-item-btn-combined {
+        font-size: 0.85rem;
+        padding: 0.4rem;
+    }
+    .trade-slider {
+        width: clamp(3rem, 4.5vw, 5rem); /* Consistent slider width */
+    }
+    .medieval-btn.compact-btn {
+        min-width: 1.8rem;
+        padding: 0.2rem;
+        font-size: 0.65rem;
+    }
+    .propose-trade-btn, .suggest-counter-btn {
+        padding: 0.5rem;
+    }
+}

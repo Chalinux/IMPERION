@@ -1,0 +1,21 @@
+/* Tooltip */
+.tooltip {
+    position: absolute;
+    background: rgba(0,0,0,0.9);
+    color: #ffd700;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 0.8rem;
+    border: 0.2rem solid #8b6914;
+    font-size: calc(var(--font-size-base) * 0.9);
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    max-width: clamp(25rem, 30vw, 35rem); /* Responsive max-width */
+    white-space: normal;
+    text-align: left;
+}
+
+.tooltip.visible {
+    opacity: 1;
+}

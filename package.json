@@ -1,0 +1,54 @@
+{
+  "name": "imperion-multiplayer",
+  "version": "1.0.0",
+  "description": "Imperion: Reinos en Guerra - Multiplayer Edition",
+  "main": "index.html",
+  "scripts": {
+    "dev": "node server/index.js",
+    "start": "node server/index.js",
+    "build": "echo 'Build process for client assets'",
+    "test": "echo \"No tests specified yet\"",
+    "test:integration": "echo \"Running integration tests...\"",
+    "clean": "rm -rf node_modules/.cache && rm -rf server/node_modules/.cache",
+    "install:all": "npm install && cd server && npm install",
+    "lint": "echo \"Linting code...\"",
+    "format": "echo \"Formatting code...\""
+  },
+  "keywords": [
+    "game",
+    "multiplayer",
+    "strategy",
+    "html5",
+    "javascript",
+    "nodejs",
+    "socket.io",
+    "2d",
+    "real-time"
+  ],
+  "author": "Imperion Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "socket.io-client": "^4.7.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/imperion-multiplayer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/imperion-multiplayer/issues"
+  },
+  "homepage": "https://github.com/your-username/imperion-multiplayer#readme"
+}

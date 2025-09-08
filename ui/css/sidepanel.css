@@ -1,0 +1,65 @@
+/* Panel lateral */
+#sidePanel {
+    grid-area: sidebar-area;
+    background: linear-gradient(180deg, #3d2914 0%, #2c1810 100%);
+    border-left: 0.3rem solid #8b6914;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Ensure it scrolls independently */
+}
+
+.panel-header {
+    background: rgba(0,0,0,0.3);
+    padding: var(--spacing-sm);
+    border-bottom: 0.2rem solid #8b6914;
+    flex-shrink: 0; /* Prevent header from shrinking when content scrolls */
+}
+
+.panel-header h3 {
+    font-family: 'Cinzel Decorative', serif;
+    color: #ffd700;
+    text-align: center;
+    font-size: clamp(1.4rem, 2vw, 1.8rem); /* Responsive font size */
+}
+
+.panel-content {
+    padding: var(--spacing-md);
+    flex: 1;
+    overflow-y: auto; /* Allow content to scroll */
+}
+
+.panel-section {
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background: rgba(0,0,0,0.2);
+    border-radius: 0.8rem;
+    border: 0.1rem solid #8b6914;
+}
+
+.panel-section h4 {
+    color: #ffd700;
+    margin-bottom: var(--spacing-sm);
+    font-size: clamp(1.4rem, 2.2vw, 1.6rem); /* Slightly increased font size */
+}
+
+.panel-section h5 {
+    color: #c9b037;
+    margin: var(--spacing-sm) 0 calc(var(--spacing-xs) * 1.5) 0;
+    font-size: clamp(1.2rem, 1.8vw, 1.4rem); /* Slightly increased font size */
+}
+
+.resource-summary p,
+.army-summary p,
+.tile-info p {
+    margin: var(--spacing-xs) 0;
+    color: #e8d5b7;
+    font-size: clamp(1.2rem, 1.6vw, 1.4rem); /* Slightly increased font size */
+}
+
+.tile-actions {
+    margin-top: var(--spacing-md);
+}
+
+.tile-actions button {
+    margin-bottom: var(--spacing-xs);
+}

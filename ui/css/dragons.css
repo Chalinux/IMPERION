@@ -1,0 +1,256 @@
+/* Dragon Egg Incubation Modal */
+.dragon-altar-modal {
+    max-width: clamp(40rem, 60vw, 50rem); /* Reduced max-width for smaller overall modal */
+    margin: 0 auto;
+    padding: var(--spacing-md);
+    text-align: center;
+    background: none;
+    max-height: 75vh; /* Retain outer modal max height */
+    overflow-y: hidden; /* Remove overflow from this element, let content manage or parent modal handle if absolutely necessary */
+}
+
+.altar-title {
+    font-family: 'Cinzel Decorative', serif;
+    color: #ffd700;
+    font-size: clamp(1.6rem, 2.5vw, 1.8rem);
+    margin-bottom: var(--spacing-md);
+    text-shadow: 0.2rem 0.2rem 0.5rem rgba(0,0,0,0.7);
+}
+
+.altar-container {
+    background: linear-gradient(135deg, rgba(61,41,20,0.9) 0%, rgba(44,24,16,0.9) 100%);
+    border: 0.4rem solid #8b6914;
+    border-radius: 1.5rem;
+    padding: var(--spacing-lg); /* Reduced padding from XL */
+    box-shadow: 0 0.8rem 2.5rem rgba(0,0,0,0.6), inset 0 0 2.5rem rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden; /* This might hide parts of the container if inner elements are too big, but it also contains the shadows/borders */
+    display: flex; /* Make it a flex container */
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center children horizontally */
+    flex-grow: 1; /* Allow container to grow if modal height permits */
+    justify-content: center; /* Center content vertically if enough space */
+}
+
+.altar-image {
+    width: 100%;
+    max-width: clamp(35rem, 45vw, 45rem); /* Reduced max-width for image */
+    height: auto;
+    border-radius: 1rem;
+    margin-bottom: var(--spacing-md);
+    box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.5);
+    image-rendering: pixelated;
+    flex-shrink: 0; /* Prevent from shrinking if space is tight */
+}
+
+/* NEW: Styles for the hatching video to fit within the modal */
+.hatching-video {
+    width: 100%;
+    max-width: clamp(35rem, 45vw, 45rem); /* Match altar-image or slightly smaller */
+    max-height: 40vh; /* Critical: Set a max height in vh units for responsiveness */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 1rem;
+    margin-bottom: var(--spacing-md);
+    box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.5);
+    background-color: black; /* Ensure black background if video has transparent parts */
+    object-fit: contain; /* Ensure the video fits within its bounds, maintaining aspect ratio */
+    flex-shrink: 0; /* Prevent from shrinking if space is tight */
+}
+
+.baby-dragon-image {
+    width: 100%;
+    max-width: clamp(15rem, 20vw, 25rem); /* Smaller size for the revealed baby dragon image */
+    max-height: 30vh; /* Critical: Also constrain the baby dragon image height */
+    height: auto;
+    object-fit: contain;
+    image-rendering: pixelated;
+    filter: drop-shadow(0.3rem 0.3rem 0.6rem rgba(0,0,0,0.7));
+    margin-bottom: var(--spacing-md);
+    flex-shrink: 0; /* Prevent from shrinking if space is tight */
+}
+
+.dragon-altar-modal .loading-spinner {
+    margin: var(--spacing-lg) auto;
+}
+
+.altar-description {
+    color: #c9b037;
+    font-size: calc(var(--font-size-base) * 0.95);
+    margin-bottom: var(--spacing-lg);
+    text-shadow: 0.1rem 0.1rem 0.2rem rgba(0,0,0,0.5);
+    font-style: italic;
+    flex-grow: 1; /* Allow text content to take available vertical space */
+    max-height: 15vh; /* Set a maximum height for the description text */
+    overflow-y: auto; /* Make the description text scroll if it overflows its max-height */
+    text-align: center; /* Center the text within its scrollable area */
+}
+
+/* Scrollbar for altar-description */
+.altar-description::-webkit-scrollbar {
+    width: 8px;
+}
+
+.altar-description::-webkit-scrollbar-track {
+    background: #2c1810;
+    border-radius: 10px;
+}
+
+.altar-description::-webkit-scrollbar-thumb {
+    background-color: #8b6914;
+    border-radius: 10px;
+    border: 2px solid #2c1810;
+}
+
+.incubate-btn {
+    background: linear-gradient(135deg, #8b6914 0%, #6b5011 100%);
+    border: 0.3rem solid #c9b037;
+    color: #ffd700;
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: 1rem;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: calc(var(--font-size-base) * 1.1);
+    transition: all 0.3s ease;
+    box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.4);
+    text-shadow: 0.1rem 0.1rem 0.2rem rgba(0,0,0,0.5);
+    margin: var(--spacing-sm);
+    flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+/* Specific styles for Dragons View (already present in UIManager.js updateDragonsView) */
+.dragon-card {
+    background: rgba(0,0,0,0.4);
+    border: 0.1rem solid #c9b037;
+    border-radius: 0.8rem;
+    padding: var(--spacing-md);
+    text-align: center;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.dragon-card:hover {
+    transform: translateY(-0.3rem);
+    box-shadow: 0 0.6rem 1.5rem rgba(0,0,0,0.4);
+}
+
+.dragon-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+}
+
+.dragon-icon {
+    width: clamp(6rem, 8vw, 9rem);
+    height: clamp(6rem, 8vw, 9rem);
+    object-fit: contain;
+    image-rendering: pixelated;
+    filter: drop-shadow(0.2rem 0.2rem 0.5rem rgba(0,0,0,0.6));
+}
+
+.dragon-title-level {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.dragon-title-level h5 {
+    font-family: 'Cinzel Decorative', serif;
+    color: #ffd700;
+    font-size: clamp(1.4rem, 2vw, 1.6rem);
+    margin-bottom: var(--spacing-xs);
+    text-shadow: 0.1rem 0.1rem 0.3rem rgba(0,0,0,0.5);
+}
+
+.dragon-level {
+    color: #e8d5b7;
+    font-size: calc(var(--font-size-base) * 0.9);
+    margin: 0;
+}
+
+.dragon-xp-bar-container, .dragon-hp-bar-container {
+    width: 100%;
+    height: 1.2rem;
+    background: rgba(0,0,0,0.6);
+    border: 0.1rem solid #8b6914;
+    border-radius: 0.6rem;
+    overflow: hidden;
+    position: relative;
+    margin-top: var(--spacing-xs);
+}
+
+.dragon-xp-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #90ee90, #4CAF50);
+    transition: width 0.3s ease;
+}
+
+.dragon-hp-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ff6b6b, #f44336);
+    transition: width 0.3s ease;
+}
+
+.hp-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: calc(var(--font-size-base) * 0.8);
+    font-weight: bold;
+    text-shadow: 0 0 0.2rem rgba(0,0,0,0.8);
+}
+
+.dragon-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xs);
+    color: #e8d5b7;
+    font-size: calc(var(--font-size-base) * 0.95);
+    margin-top: var(--spacing-sm);
+}
+
+.dragon-stats-grid p {
+    margin: 0;
+    text-align: left;
+}
+
+.dragon-stats-grid strong {
+    color: #ffd700;
+}
+
+.dragon-abilities, .dragon-buffs {
+    text-align: left;
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 0.1rem dashed rgba(139,105,20,0.3);
+}
+
+.dragon-abilities h5, .dragon-buffs h5 {
+    color: #c9b037;
+    font-size: calc(var(--font-size-base) * 1.05);
+    margin-bottom: var(--spacing-xs);
+}
+
+.dragon-abilities p, .dragon-buffs p {
+    color: #e8d5b7;
+    font-size: calc(var(--font-size-base) * 0.9);
+    margin: 0;
+}
+
+.dragon-buff-item {
+    display: inline-block;
+    background: rgba(76,175,80,0.2);
+    border: 0.1rem solid #4CAF50;
+    color: #90ee90;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.6rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: calc(var(--font-size-base) * 0.85);
+    font-weight: 600;
+}

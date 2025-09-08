@@ -1,0 +1,380 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imperion: Reinos en Guerra</title>
+    <link rel="stylesheet" href="ui/css/base-styles.css">
+    <link rel="stylesheet" href="ui/css/game-layout.css">
+    <link rel="stylesheet" href="ui/css/trade-modal-shared.css">
+    <link rel="stylesheet" href="ui/css/private-trade.css">
+    <link rel="stylesheet" href="ui/css/public-sell-trade.css">
+    <link rel="stylesheet" href="ui/css/battle.css">
+    <link rel="stylesheet" href="ui/css/dragons.css">
+    <link rel="stylesheet" href="ui/css/chatsystem.css">
+    <link rel="stylesheet" href="ui/css/admintools.css">
+    <link rel="stylesheet" href="ui/css/game_modals.css">
+    <link rel="stylesheet" href="ui/css/news.css">
+    <link rel="stylesheet" href="ui/css/city.css">
+    <link rel="stylesheet" href="ui/css/loading.css">
+    <link rel="stylesheet" href="ui/css/notifications.css">
+    <link rel="stylesheet" href="ui/css/profile.css">
+    <link rel="stylesheet" href="ui/css/header.css">
+    <link rel="stylesheet" href="ui/css/sidepanel.css">
+    <link rel="stylesheet" href="ui/css/game-views.css">
+    <link rel="stylesheet" href="ui/css/tooltip.css">
+    <link rel="stylesheet" href="ui/css/map-view.css">
+    <link rel="stylesheet" href="ui/css/science.css">
+    <link rel="stylesheet" href="ui/css/army.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+    <script type="importmap">
+      {
+        "imports": {
+          "marked": "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js",
+          "dompurify": "https://cdn.jsdelivr.net/npm/dompurify/dist/purify.es.min.js"
+        }
+      }
+    </script>
+    <link rel="preload" href="assets/images/videos/huevocomunhatching.mp4" as="video">
+</head>
+<body>
+    <div id="loadingScreen">
+        <div class="loading-content">
+            <h1 class="loading-title">Imperion</h1>
+            <p>Reinos en Guerra</p>
+            <div class="loading-spinner"></div>
+            <div class="progress-bar-container">
+                <div id="progressBar"></div>
+            </div>
+            <p id="loadingPercentage">0%</p>
+            <p id="loadingStatus">Cargando recursos del reino...</p>
+            <div id="loadingLogsContainer">
+                <p id="loadingLogs" class="loading-logs-output"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameContainer" style="visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.5s linear;">
+        <!-- Header with resources -->
+        <header id="gameHeader">
+            <div class="empire-section">
+                <div class="empire-title">
+                    <h1>Imperion: Reinos en Guerra</h1>
+                    <span class="empire-name">Imperio de Theron</span>
+                </div>
+            </div>
+            
+            <div class="resources-section">
+                <div class="resource" data-tooltip="Comida">
+                    <img src="assets/images/ui/food-icon.png" alt="Comida" class="resource-icon">
+                    <span class="resource-amount" id="food">1000</span>
+                    <span class="resource-rate">+50/h</span>
+                </div>
+                <div class="resource" data-tooltip="Madera">
+                    <img src="assets/images/ui/wood-icon.png" alt="Madera" class="resource-icon">
+                    <span class="resource-amount" id="wood">800</span>
+                    <span class="resource-rate">+30/h</span>
+                </div>
+                <div class="resource" data-tooltip="Piedra">
+                    <img src="assets/images/ui/stone-icon.png" alt="Piedra" class="resource-icon">
+                    <span class="resource-amount" id="stone">600</span>
+                    <span class="resource-rate">+25/h</span>
+                </div>
+                <div class="resource" data-tooltip="Metal">
+                    <img src="assets/images/ui/metal-icon.png" alt="Metal" class="resource-icon">
+                    <span class="resource-amount" id="metal">400</span>
+                    <span class="resource-rate">+15/h</span>
+                </div>
+                <div class="resource" data-tooltip="Imperion">
+                    <img src="assets/images/ui/imperion-icon.png" alt="Imperion" class="resource-icon">
+                    <span class="resource-amount" id="imperion">200</span>
+                    <span class="resource-rate">+5/h</span>
+                </div>
+            </div>
+
+            <div class="resource-details">
+                <button class="resource-expand-btn" id="resourceExpandBtn" data-tooltip="Ver detalles de recursos">📊</button>
+                <div class="resource-panel" id="resourcePanel">
+                    <div class="resource-panel-content">
+                        <h4>🏛️ Resumen de Recursos</h4>
+                        <div class="resource-summary">
+                            <p>🌾 Comida: <span id="detailFood">1000</span></p>
+                            <p>🪵 Madera: <span id="detailWood">800</span></p>
+                            <p>🪨 Piedra: <span id="detailStone">600</span></p>
+                            <p>⚔️ Metal: <span id="detailMetal">400</span></p>
+                            <p>👑 Imperion: <span id="detailImperion">200</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-section">
+                <div class="game-controls">
+                    <button class="medieval-btn" id="cityBtn" data-tooltip="Ver tu ciudad y edificios">🏰 Ciudad</button>
+                    <button class="medieval-btn" id="diplomacyBtn" data-tooltip="Gestionar relaciones con otros imperios">⚖️ Diplomacia</button>
+                    <button class="medieval-btn" id="tradeBtn" data-tooltip="Comerciar recursos en el mercado">💰 Comercio</button>
+                    <button class="medieval-btn" id="dragonsBtn" data-tooltip="Entrenar dragones y habilidades especiales">🐉 Dragones</button>
+                    <button class="medieval-btn" id="armyBtn" data-tooltip="Gestionar tu ejército y generales">⚔️ Ejército</button>
+                    <button class="medieval-btn" id="newsPanelBtn" data-tooltip="Ver todas las noticias del imperio">📰 Noticias</button>
+                    <button class="medieval-btn" id="profileBtn" data-tooltip="Ver tu perfil y amigos">👤 Perfil</button>
+                    <button class="medieval-btn" id="scienceBtn" data-tooltip="Acceder al laboratorio de ciencia y tecnología">🔬 Ciencia</button>
+                </div>
+                
+                <!-- Multiplayer Status Indicator -->
+                <div class="multiplayer-status" id="multiplayerStatus">
+                    <div class="status-indicator disconnected" id="statusIndicator" title="Sin conexión al servidor">
+                        <span class="status-icon">🔌</span>
+                        <span class="status-text">Desconectado</span>
+                    </div>
+                    <div class="player-info" id="playerInfo" style="display: none;">
+                        <span class="player-id" id="playerIdDisplay"></span>
+                        <span class="room-info" id="roomInfo"></span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Game View Container (Mapa o Ciudad) -->
+        <div id="mainGameView">
+            <!-- Mapa principal -->
+            <div id="mapView" class="game-view active">
+                <main id="gameMap">
+                    <div id="mapContainer">
+                        <canvas id="mapCanvas"></canvas>
+                    </div>
+                    <div id="mapControls">
+                        <button class="map-control" id="zoomIn">+</button>
+                        <button class="map-control" id="zoomOut">-</button>
+                        <button class="map-control" id="centerMap">🎯</button>
+                    </div>
+                </main>
+                <!-- Panel lateral -->
+                <aside id="sidePanel">
+                    <div class="panel-header">
+                        <h3>Información</h3>
+                        <button class="medieval-btn" id="battleLogBtn" style="margin-top: 10px; width: 100%;">📜 Registro de Batallas</button>
+                    </div>
+                    <div class="panel-content" id="panelContent">
+                        <p>Selecciona un tile para ver su información</p>
+                    </div>
+                </aside>
+            </div>
+
+            <!-- Vista de Ciudad -->
+            <div id="cityView" class="game-view">
+                <div class="city-background">
+                    <div class="city-content-overlay">
+                        <h3 class="city-title">🏰 Ciudad de Theron</h3>
+                        <div class="city-buildings">
+                            <div class="building">
+                                <h4 class="building-title">🏰 Castillo</h4>
+                                <p>Centro de tu imperio</p>
+                                <button class="medieval-btn">Mejorar</button>
+                            </div>
+                            <div class="building">
+                                <h4 class="building-title">⚔️ Cuartel</h4>
+                                <p>Entrenar tropas</p>
+                                <button class="medieval-btn" id="recruitTroopsBtn">Entrenar Tropas</button>
+                            </div>
+                            <div class="building">
+                                <h4 class="building-title">🏪 Mercado</h4>
+                                <p>Comerciar recursos</p>
+                                <button class="medieval-btn" id="cityToTradeBtn">Comerciar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista de Diplomacia -->
+            <div id="diplomacyView" class="game-view">
+                <div class="view-background" style="background-image: url('assets/images/backgrounds/diplomacy_background.png');">
+                    <div class="view-content-overlay">
+                        <h3 class="view-title">⚖️ Diplomacia</h3>
+                        <div class="view-section">
+                            <h4>Relaciones con otros Imperios</h4>
+                            <div class="list-container" id="diplomacy-list-container">
+                                <!-- Diplomacy items will be dynamically inserted here by UIManager -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista de Comercio -->
+            <div id="tradeView" class="game-view">
+                <div class="view-background" style="background-image: url('assets/images/backgrounds/trade_background.png');">
+                    <div class="view-content-overlay">
+                        <h3 class="view-title">💰 Centro de Comercio Global</h3>
+
+                        <div class="trade-tabs">
+                            <button class="medieval-btn trade-tab active" data-trade-tab="buy" id="tradeTabBuy">🛒 Mercado de Compras</button>
+                            <button class="medieval-btn trade-tab" data-trade-tab="sell" id="tradeTabSell">📦 Mercado de Ventas</button>
+                        </div>
+
+                        <div id="marketBuySection" class="market-section active">
+                            <div class="view-section">
+                                <h4>Ofertas Disponibles</h4>
+                                <div class="list-container" id="marketOffersList">
+                                    <!-- Trade offers from NPCs and other players will be dynamically inserted here by PublicTradeManager -->
+                                    <p style="text-align: center; color: #c9b037;">Las ofertas del mercado global se cargarán aquí.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="marketSellSection" class="market-section">
+                            <div class="view-section">
+                                <h4>Venta Instantánea al Mercado</h4>
+                                <p style="text-align: center; color: #c9b037; margin-bottom: 15px;">Vende tus artículos directamente al mercado global por Imperion. ¡La transacción es instantánea y sujeta a un pequeño impuesto del mercado!</p>
+                                <button class="medieval-btn" id="instantSellBtn" style="width: 100%;">💰 Vender Artículo Ahora</button>
+                            </div>
+                            
+                            <div class="view-section" style="margin-top: 20px;">
+                                <h4>Crear Nueva Oferta Pública</h4>
+                                <p style="text-align: center; color: #c9b037; margin-bottom: 15px;">Publica tus propios artículos para que otros jugadores los compren. Se aplicará un impuesto al venderse el artículo.</p>
+                                <button class="medieval-btn" id="createPublicOfferBtn" style="width: 100%;">📝 Publicar Nueva Oferta</button>
+                            </div>
+
+                            <div class="view-section" style="margin-top: 20px;">
+                                <h4>Tus Ofertas de Venta Pública Activas</h4>
+                                <div class="list-container" id="playerOffersList">
+                                    <!-- Player's active public offers will be dynamically inserted here by PublicTradeManager -->
+                                    <p style="text-align: center; color: #c9b037;">No tienes ofertas de comercio público activas.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista de Dragones -->
+            <div id="dragonsView" class="game-view">
+                <div class="view-background" style="background-image: url('assets/images/backgrounds/dragons_background.png');">
+                    <div class="view-content-overlay">
+                        <h3 class="view-title">🐉 Guarida de Dragones</h3>
+                        <div class="view-section">
+                            <h4>Tus Dragones</h4>
+                            <div class="list-container" id="playerDragonsList">
+                                <!-- Dragon items will be dynamically inserted here by UIManager -->
+                            </div>
+                            <button class="medieval-btn" id="incubateDragonBtn" style="margin-top: 15px;">Incubar Nuevo Huevo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista de Noticias -->
+            <div id="newsPanelView" class="game-view">
+                <div class="view-background" style="background-image: url('assets/images/backgrounds/news_panel_background.png');">
+                    <div class="view-content-overlay">
+                        <h3 class="view-title">📰 Noticias del Imperio</h3>
+                        <div class="news-panel-content">
+                            <h4 style="color: #ffd700; margin-bottom: 15px;">Registro de Eventos</h4>
+                            <div class="news-controls" style="margin-bottom: 15px;">
+                                <button class="medieval-btn" id="clearNewsBtn" style="margin-right: 10px;">Limpiar Historial</button>
+                                <span style="color: #c9b037;">Total: <span id="newsCount">0</span> noticias</span>
+                            </div>
+                            <div class="news-list" id="fullNewsList">
+                                <!-- News items will be dynamically inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New: Vista de Perfil -->
+            <div id="profileView" class="game-view">
+                <div class="view-background" style="background-image: url('assets/images/backgrounds/diplomacy_background.png');">
+                    <div class="view-content-overlay">
+                        <h3 class="view-title">👤 Perfil del Rey</h3>
+                        <div class="view-section profile-details">
+                            <h4>👑 Tu Reinado</h4>
+                            <div class="profile-avatar-container">
+                                <img id="profileAvatar" src="assets/images/units/milicia1.png" alt="Avatar del Rey" class="profile-avatar">
+                                <input type="file" id="profileImageUpload" accept="image/*" style="display: none;">
+                                <button class="medieval-btn profile-upload-btn" onclick="document.getElementById('profileImageUpload').click()">Cambiar Avatar</button>
+                            </div>
+                            <p><strong>Nombre de Usuario:</strong> <span id="profileUsername">Cargando...</span></p>
+                            <p><strong>ID de Usuario:</strong> <span id="profileUserId">Cargando...</span></p>
+                            <p><strong>Tropas en Ciudad:</strong> <span id="profileCityTroops">0</span></p>
+                            <p><strong>Tecnologías Aprendidas:</strong> <span id="profileTechnologies">0</span></p>
+                            <p><strong>Dragones Poseídos:</strong> <span id="profileDragonsCount">0</span></p>
+                        </div>
+
+                        <div class="view-section friends-list">
+                            <h4>🤝 Amigos del Reino</h4>
+                            <div class="list-container" id="friendsListContainer">
+                                <!-- Friends will be dynamically inserted here -->
+                                <p style="text-align: center; color: #c9b037;">No tienes amigos en tu lista.</p>
+                            </div>
+                            <button class="medieval-btn" style="margin-top: 15px;">Añadir Amigo</button>
+                        </div>
+
+                        <div class="view-section other-features">
+                            <h4>✨ Otras Funciones del Perfil</h4>
+                            <p style="text-align: center; color: #c9b037;">¡Próximamente más opciones para personalizar tu perfil!</p>
+                            <button class="medieval-btn" style="margin-top: 15px;">Ver Estadísticas Detalladas</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista de Ciencia -->
+            <div id="scienceView" class="game-view">
+                <div class="view-background" style="background-image: url('assets/images/backgrounds/diplomacy_background.png');">
+                    <div class="view-content-overlay">
+                        <h3 class="view-title">🔬 Árbol Tecnológico</h3>
+                        <div id="tech-tree-container">
+                            <!-- Tech tree will be rendered here by ScienceManager.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista de Ejército -->
+            <div id="armyView" class="game-view">
+                <div class="view-background" style="background-image: url('assets/images/backgrounds/army_background.png');">
+                    <div class="view-content-overlay" id="armyViewContent">
+                        <!-- Army view content will be dynamically inserted here by UIManager.js -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slider de noticias -->
+        <div id="newsSlider">
+            <button class="news-control" id="newsPrev">◄</button>
+            <div class="news-content">
+                <span class="news-text" id="newsText">Bienvenido a Imperion: Reinos en Guerra</span>
+            </div>
+            <button class="news-control" id="newsNext">►</button>
+        </div>
+
+        <!-- Chat System -->
+        <div id="chatContainer" class="chat-system">
+            <button id="chatToggle" class="chat-toggle">💬</button> 
+            <div id="chatContentWrapper" class="chat-content-wrapper" style="display: none;">
+                <!-- Chat UI will be loaded here dynamically by ChatSystem.js -->
+            </div>
+        </div>
+
+        <!-- Tooltip -->
+        <div id="tooltip" class="tooltip"></div>
+
+        <!-- Modal for actions -->
+        <div id="modalContainer"></div>
+
+        <!-- Admin Panel (Will be loaded here dynamically) -->
+        <div id="adminPanelContainer"></div>
+
+        <!-- Selection Overlay (for highlighting elements) -->
+        <div id="selectionOverlay" class="selection-overlay"></div>
+    </div>
+
+    <!-- Notification Pop-up Container -->
+    <div id="notificationContainer"></div>
+
+    <!-- Load all JavaScript modules -->
+    <script type="module" src="src/core/main.js"></script>
+</body>
+</html>

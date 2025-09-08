@@ -1,0 +1,272 @@
+/* Recruitment Panel Styles */
+.recruitment-panel {
+    max-height: 70vh; /* Max height for modal content */
+    overflow-y: auto;
+    padding: var(--spacing-sm);
+}
+
+.recruitment-stats {
+    border: 0.1rem solid #8b6914;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    border-radius: 0.8rem;
+}
+
+.recruitment-stats h4 {
+    color: #ffd700;
+    margin-bottom: var(--spacing-sm);
+}
+
+.recruitment-options {
+    margin: var(--spacing-lg) 0;
+    display: grid;
+    gap: var(--spacing-md);
+}
+
+.recruit-option {
+    display: flex;
+    align-items: center;
+    background: rgba(0,0,0,0.3);
+    padding: var(--spacing-md);
+    border-radius: 0.8rem;
+    border: 0.1rem solid #8b6914;
+    transition: all 0.3s ease;
+}
+
+.recruit-option:hover {
+    transform: translateY(-0.2rem);
+    background: rgba(139,105,20,0.4) !important;
+}
+
+.recruit-option img {
+    width: var(--icon-size-md);
+    height: var(--icon-size-md);
+    margin-right: var(--spacing-md);
+    flex-shrink: 0;
+}
+
+.recruit-option div {
+    flex: 1;
+}
+
+.recruit-option h4 {
+    color: #ffd700;
+    font-size: clamp(1.3rem, 1.8vw, 1.5rem);
+    margin-bottom: var(--spacing-xs);
+}
+
+.recruit-option p {
+    color: #e8d5b7;
+    font-size: calc(var(--font-size-base) * 0.9);
+    margin: 0.2rem 0;
+}
+
+.recruit-option input {
+    width: clamp(5rem, 6vw, 6rem); /* Responsive width */
+    padding: var(--spacing-xs);
+    border: 0.1rem solid #8b6914;
+    background: rgba(0,0,0,0.5);
+    color: #ffd700;
+    border-radius: 0.4rem;
+    font-family: 'Cinzel', serif;
+    font-size: var(--font-size-base);
+    text-align: center;
+}
+
+.recruitment-summary {
+    border: 0.1rem solid #8b6914;
+    padding: var(--spacing-md);
+    background: rgba(139,105,20,0.3);
+    border-radius: 0.8rem;
+}
+
+.recruitment-summary h4 {
+    color: #ffd700;
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Attack Planning Styles */
+.attack-planning {
+    max-height: 70vh; /* Max height for modal content */
+    overflow-y: auto;
+    padding: var(--spacing-sm);
+}
+
+.attack-info, .attack-options, .attack-warning {
+    padding: var(--spacing-md);
+    background: rgba(0,0,0,0.3);
+    border-radius: 0.8rem;
+    border: 0.1rem solid #8b6914;
+    margin-bottom: var(--spacing-lg);
+}
+
+.attack-info h4, .attack-options h4, .attack-warning h4 {
+    color: #ffd700;
+    margin-bottom: var(--spacing-sm);
+}
+
+.attack-options input {
+    width: clamp(6rem, 8vw, 8rem);
+    padding: var(--spacing-xs);
+    border: 0.1rem solid #8b6914;
+    background: rgba(0,0,0,0.5);
+    color: #ffd700;
+    border-radius: 0.4rem;
+    font-family: 'Cinzel', serif;
+    font-size: var(--font-size-base);
+    text-align: center;
+}
+
+.attack-warning {
+    background: rgba(139,69,19,0.3);
+    border: 0.1rem solid #8b4513;
+    color: #e8d5b7; /* Adjust warning text color */
+}
+
+.attack-warning h4 {
+    color: #ff6b6b;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.8);
+    display: flex; /* Use flex to center modal */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #3d2914 0%, #2c1810 100%);
+    margin: 3vh auto; /* Responsive margin */
+    padding: 0;
+    border: 0.3rem solid #8b6914;
+    border-radius: 1.2rem;
+    width: min(95vw, 120rem); /* Responsive width */
+    box-shadow: 0 0.8rem 3.2rem rgba(0,0,0,0.5);
+    animation: modalFadeIn 0.3s ease;
+    max-height: 85vh; /* Reduced max height */
+    overflow-y: auto;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.close {
+    color: #ffd700;
+    float: right;
+    font-size: clamp(2rem, 3vw, 2.6rem);
+    font-weight: bold;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: #c9b037;
+}
+
+#modalBody {
+    padding: var(--spacing-md);
+    color: #e8d5b7;
+    font-size: var(--font-size-base); /* Apply base font size */
+}
+
+/* News Panel Modal (retained for generic modal structure) */
+.news-panel {
+    max-height: 70vh; /* Responsive max-height */
+    overflow-y: auto;
+    background: rgba(0,0,0,0.2);
+    border-radius: 0.8rem;
+    padding: var(--spacing-md);
+}
+
+/* Battle Log Panel */
+.battle-log-panel {
+    max-height: 70vh; /* Responsive max-height */
+    overflow-y: auto;
+    background: rgba(0,0,0,0.2);
+    border-radius: 0.8rem;
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-sm);
+}
+
+.battle-log-item {
+    background: rgba(139,105,20,0.3);
+    border: 0.1rem solid #8b6914;
+    border-radius: 0.6rem;
+    padding: var(--spacing-xs);
+    margin-bottom: var(--spacing-xs);
+    transition: background 0.3s ease;
+}
+
+.battle-log-item:hover {
+    background: rgba(139,105,20,0.5);
+}
+
+.battle-timestamp {
+    color: #c9b037;
+    font-size: calc(var(--font-size-base) * 0.9);
+    margin-bottom: var(--spacing-xs);
+}
+
+.battle-details {
+    color: #e8d5b7;
+    font-size: calc(var(--font-size-base) * 1.1);
+}
+
+.battle-result {
+    font-weight: bold;
+    margin-top: var(--spacing-xs);
+}
+
+/* Training menu styles */
+.training-options {
+    max-height: 50vh; /* Responsive max-height */
+    overflow-y: auto;
+}
+
+.troop-option {
+    transition: transform 0.2s ease;
+    display: flex; /* Ensure it's a flex container */
+    align-items: center;
+    background: rgba(0,0,0,0.3);
+    padding: var(--spacing-md);
+    border-radius: 0.8rem;
+    border: 0.1rem solid #8b6914; /* Use rem for border */
+    margin-bottom: var(--spacing-md);
+}
+
+.troop-option:hover {
+    transform: translateY(-0.2rem);
+    background: rgba(139,105,20,0.4) !important;
+}
+
+.troop-option img {
+    width: var(--icon-size-md);
+    height: var(--icon-size-md);
+    margin-right: var(--spacing-md);
+    flex-shrink: 0;
+}
+
+.troop-option div {
+    flex: 1; /* Allow text content to take space */
+}
+
+.troop-option h4 {
+    font-size: clamp(1.3rem, 1.8vw, 1.5rem);
+    margin-bottom: var(--spacing-xs);
+}
+
+.troop-option p {
+    font-size: calc(var(--font-size-base) * 0.9);
+    margin: 0.2rem 0;
+}

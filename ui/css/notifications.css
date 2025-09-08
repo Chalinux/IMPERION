@@ -1,0 +1,86 @@
+/* New Notification System Styles */
+#notificationContainer {
+    position: fixed;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    pointer-events: auto;
+}
+
+.notification-item {
+    background: linear-gradient(135deg, rgba(61,41,20,0.95) 0%, rgba(44,24,16,0.95) 100%);
+    border: 0.2rem solid #8b6914;
+    border-radius: 0.8rem;
+    padding: var(--spacing-sm) var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.4);
+    min-width: clamp(20rem, 25vw, 24rem);
+    max-width: clamp(28rem, 30vw, 32rem);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+    cursor: pointer;
+    position: relative;
+}
+
+.notification-item.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification-item.hide {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.notification-icon {
+    font-size: clamp(2rem, 2.5vw, 2.4rem);
+    line-height: 1;
+    flex-shrink: 0;
+    text-shadow: 0.1rem 0.1rem 0.3rem rgba(0,0,0,0.5);
+}
+
+.notification-icon-img {
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
+    image-rendering: pixelated;
+    filter: drop-shadow(0.1rem 0.1rem 0.3rem rgba(0,0,0,0.5));
+}
+
+.notification-content {
+    flex-grow: 1;
+    color: #e8d5b7;
+    font-size: calc(var(--font-size-base) * 1.1);
+    text-align: left;
+}
+
+.notification-message {
+    display: block;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: #c9b037;
+    font-size: clamp(1.8rem, 2.2vw, 2.2rem);
+    cursor: pointer;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.8rem;
+    line-height: 1;
+    padding: 0.5rem;
+    transition: color 0.2s ease;
+    pointer-events: auto;
+}
+
+.notification-close:hover {
+    color: #ffd700;
+}
+

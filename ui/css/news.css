@@ -1,0 +1,115 @@
+/* News Panel specific styles (reused from modal, but now a full view) */
+.news-panel-content {
+    background: rgba(0,0,0,0.2);
+    border-radius: 0.8rem;
+    padding: var(--spacing-md);
+    text-align: center;
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+.news-panel-content h4 {
+    color: #ffd700;
+    margin-bottom: var(--spacing-md);
+}
+
+.news-controls {
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.news-list {
+    text-align: left;
+}
+
+.news-item {
+    background: rgba(139,105,20,0.3);
+    border: 0.1rem solid #8b6914;
+    border-radius: 0.6rem;
+    padding: var(--spacing-xs);
+    margin-bottom: var(--spacing-xs);
+    transition: background 0.3s ease;
+}
+
+.news-item:hover {
+    background: rgba(139,105,20,0.5);
+}
+
+.news-timestamp {
+    color: #c9b037;
+    font-size: calc(var(--font-size-base) * 0.9);
+    margin-bottom: var(--spacing-xs);
+}
+
+.news-message {
+    color: #e8d5b7;
+    font-size: calc(var(--font-size-base) * 1.1);
+}
+
+/* Slider de noticias */
+#newsSlider {
+    grid-area: news;
+    background: linear-gradient(90deg, #2c1810 0%, #3d2914 100%);
+    border-top: 0.2rem solid #8b6914; /* Adjusted border thickness */
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-md);
+    min-height: clamp(4rem, 5vh, 4.5rem); /* Adjusted height for slider */
+    max-height: clamp(4rem, 5vh, 4.5rem);
+}
+
+.news-control {
+    background: rgba(139,105,20,0.8);
+    border: 0.1rem solid #c9b037;
+    color: #ffd700;
+    width: var(--button-height);
+    height: var(--button-height);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: clamp(1.2rem, 1.5vw, 1.4rem);
+    font-weight: bold;
+    transition: all 0.3s ease;
+    flex-shrink: 0; /* Prevent controls from shrinking */
+}
+
+.news-control:hover {
+    background: rgba(201,176,55,0.8);
+    transform: scale(1.1);
+}
+
+.news-content {
+    flex: 1;
+    overflow: hidden; /* This is essential for clipping the scrolling text */
+    display: flex; /* Added for vertical centering of news-text */
+    align-items: center; /* Added for vertical centering of news-text */
+}
+
+.news-text {
+    display: block;
+    white-space: nowrap;
+    animation: newsSlide 15s linear infinite;
+    font-size: calc(var(--font-size-base) * 1.4); /* Increased font size */
+    color: #e8d5b7;
+}
+
+@keyframes newsSlide {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+.news-content:hover .news-text {
+    animation-play-state: paused;
+}
+
+/* News Panel Modal (retained for generic modal structure) */
+.news-panel {
+    max-height: 70vh; /* Responsive max-height */
+    overflow-y: auto;
+    background: rgba(0,0,0,0.2);
+    border-radius: 0.8rem;
+    padding: var(--spacing-md);
+}

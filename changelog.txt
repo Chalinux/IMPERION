@@ -1,0 +1,141 @@
+# IMPERION: REINOS EN GUERRA - HISTORIAL DE CAMBIOS
+
+## Versión 1.0.33 - Modularización de UI de Comercio Privado (Renderizado de Items)
+**Fecha:** Diciembre 2024
+
+### 🏗️ Mejoras Estructurales
+
+#### 🗂️ Refactorización de PrivateTradeUIManager.js y PrivateTradeUIHelper.js
+- Se movió la lógica de generación del HTML para la lista de ítems de comercio privado (`renderPrivateTradeItems` que contenía el bucle de mapeo y la lógica de cada `trade-item-entry`) de `PrivateTradeUIManager.js` a `PrivateTradeUIHelper.js`.
+- `PrivateTradeUIHelper.js` ahora contiene un nuevo método `generateTradeItemsListHtml` que es responsable de construir el HTML de la lista de elementos para el jugador o el NPC.
+- `PrivateTradeUIManager.js` ahora llama a `this.privateTradeUIHelper.generateTradeItemsListHtml()` y simplemente asigna el HTML resultante a los elementos del DOM, delegando completamente la creación del marcado de los ítems.
+- Además, `PrivateTradeUIHelper.js` ahora recibe instancias de `PrivateTradeOfferState` y `PrivateTradeUIManager` en su constructor para acceder directamente a los datos de la oferta y para que los callbacks `onclick` en el HTML generado puedan referenciar correctamente los métodos de `PrivateTradeUIManager`.
+- Esta modularización reduce aún más la complejidad de `PrivateTradeUIManager.js`, separando la responsabilidad de renderizado de un item individual y de la lista de la orquestación general de la UI del modal.
+
+## Versión 1.0.32 - Modularización de UI de Comercio Privado (Opciones de Artículo)
+**Fecha:** Diciembre 2024
+
+### 🏗️ Mejoras Estructurales
+
+#### 🗂️ Refactorización de PrivateTradeUIManager.js y PrivateTradeUIHelper.js
+- Se movió la lógica de actualización de las opciones de artículos en el selector (`updatePrivateItemOptions`) de `PrivateTradeUIManager.js` a `PrivateTradeUIHelper.js`.
+- `PrivateTradeUIManager.js` ahora delega la llamada a `updatePrivateItemOptions` a su instancia de `PrivateTradeUIHelper.js`.
+- Esta modularización sigue separando la lógica de renderizado del DOM y la preparación de los elementos de UI (que ahora incluye la carga dinámica de opciones en los selectores) de la gestión del estado y la interacción principal en `PrivateTradeUIManager.js`.
+
+## Versión 1.0.31 - Modularización de UI de Comercio Privado (Generación HTML)
+**Fecha:** Diciembre 2024
+
+### 🏗️ Mejoras Estructurales
+
+#### 🗂️ Refactorización de PrivateTradeUIManager.js y PrivateTradeUIHelper.js
+- Se movió la lógica de generación del HTML del modal de comercio privado (`_generatePlayerPanelHtml`, `_generateNegotiationCenterHtml`, `_generateNpcPanelHtml`, `_generateTradeItemSelectorHtml`) de `PrivateTradeUIManager.js` a un nuevo archivo `PrivateTradeUIHelper.js`.
+- `PrivateTradeUIManager.js` ahora instancia `PrivateTradeUIHelper.js` y delega la construcción de las partes del HTML del modal a esta nueva clase.
+- Esta modularización reduce aún más la complejidad de `PrivateTradeUIManager.js`, separando la lógica de renderizado del DOM de la gestión del estado de la UI y la interacción con el usuario.
+
+## Versión 1.0.30 - Modularización de UI de Comercio Privado (Control de Cantidad)
+**Fecha:** Diciembre 2024
+
+### 🏗️ Mejoras Estructurales
+
+#### 🗂️ Refactorización de PrivateTradeManager.js y PrivateTradeUIManager.js
+- Se movió la lógica de manipulación de la cantidad de artículos listados en el comercio privado (`updatePrivateListedItemAmount`, `setPrivateListedItemMax`, `setPrivateListedItemPercentage`) de `PrivateTradeManager.js` a `PrivateTradeUIManager.js`.
+- `PrivateTradeUIManager.js` ahora es directamente responsable de actualizar el estado de la oferta a través de `PrivateTradeOfferState` y refrescar la interfaz de usuario de los elementos individuales.
+- Esta modularización reduce aún más la complejidad de `PrivateTradeManager.js`, separando claramente la lógica de presentación y manipulación de la UI del estado y la lógica de negocio central del comercio privado.
+
+## Versión 1.0.29 - Modularización de Lógica de Comercio Privado
+**Fecha:** Diciembre 2024
+
+### 🏗️ Mejoras Estructurales
+
+#### 🗂️ Refactorización de PrivateTradeManager.js y PrivateTradeLogic.js
+- Se movió la lógica central de las negociaciones de comercio privado (`suggestCounterOffer`, `proposePrivateTrade`) de `PrivateTradeManager.js` a un nuevo archivo `PrivateTradeLogic.js`.
+- `PrivateTradeManager.js` ahora instancia `PrivateTradeLogic.js` en su constructor y delega la ejecución de estas funciones de negocio a esta nueva clase.
+- Esta modularización reduce la complejidad de `PrivateTradeManager.js`, separando las responsabilidades de coordinación de la UI y el estado (que mantiene `PrivateTradeManager` a través de `PrivateTradeUIManager` y `PrivateTradeOfferState`) de la lógica de evaluación y ejecución del comercio en sí.
+
+## Versión 1.0.28 - Modularización del Sistema de Chat (UI Lazy Load)
+**Fecha:** Diciembre 2024
+
+### 🏗️ Mejoras Estructurales
+
+#### 🗂️ Refactorización de index.html y ChatSystem.js
+- Se movió el código HTML del sistema de chat (`.chat-content-wrapper` y sus hijos) de `index.html` a un nuevo archivo `chat-panel.html`.
+- `index.html` ahora contiene un contenedor vacío (`#chatSystem`) donde la UI del chat se carga dinámicamente.
+- `ChatSystem.js` fue modificado para:
+    - Cargar el contenido de `chat-panel.html` mediante `fetch` solo la primera vez que se interactúa con el chat (al expandirlo).
+    - Almacenar referencias a los elementos internos del chat (`#chatToggle`, `#chatMessages`, `#chatInput`, etc.) después de que el HTML ha sido inyectado en el DOM.
+    - Asegurarse de que los event listeners para enviar mensajes y cambiar de canal se adjunten a los elementos correctos después de la carga dinámica, y solo una vez.
+- Esta modularización reduce aún más el tamaño inicial de `index.html` y mejora el tiempo de carga del juego, ya que la interfaz del chat (que no siempre está visible o en uso) no se carga hasta que es necesaria.
+
+## Versión 1.0.27 - Modularización de Modal de Acciones (UI Lazy Load)
+**Fecha:** Diciembre 2024
+
+### 🏗️ Mejoras Estructurales
+
+#### 🗂️ Refactorización de index.html y UIManager.js
+- Se movió el código HTML del modal de acciones (`#actionModal`) de `index.html` a un nuevo archivo `game-modals.html`.
+- `index.html` ahora contiene un contenedor vacío (`#modalContainer`) donde la UI del modal se carga dinámicamente.
+- `UIManager.js` fue modificado para:
+    - Cargar el contenido de `game-modals.html` mediante `fetch` solo la primera vez que se llama a `showModal()`.
+    - Almacenar referencias a los elementos del modal (`#actionModal`, `#modalBody`, etc.) después de que el HTML ha sido inyectado en el DOM.
+    - Asegurarse de que los event listeners para cerrar el modal se adjunten a los elementos correctos después de la carga dinámica, y solo una vez.
+- Esta modularización reduce aún más el tamaño inicial de `index.html` y mejora el tiempo de carga del juego, ya que la interfaz del modal (que es transitoria) no se carga hasta que es necesaria.
+
+## Versión 1.0.26 - Modularización de Panel de Administración (UI Lazy Load)
+**Fecha:** Diciembre 2024
+
+### 🏗️ Mejoras Estructurales
+
+#### 🗂️ Refactorización de index.html y AdminTools.js
+- Se movió el código HTML del panel de administración (`#adminPanel`) de `index.html` a un nuevo archivo `admin-panel.html`.
+- `index.html` ahora contiene un contenedor vacío (`#adminPanelContainer`) donde la UI del panel de administración se carga dinámicamente.
+- `AdminTools.js` fue modificado para:
+    - Cargar el contenido de `admin-panel.html` mediante `fetch` solo la primera vez que se activa el modo de administración (`enable()`).
+    - Almacenar referencias a los elementos del panel (botones, inputs, etc.) después de que el HTML ha sido inyectado en el DOM.
+    - Asegurarse de que los event listeners se adjunten a los elementos correctos después de la carga dinámica.
+- Esta modularización reduce el tamaño inicial de `index.html` y mejora el tiempo de carga del juego, ya que la interfaz de administración (que no se usa a menudo) no se carga hasta que es necesaria.
+
+## Versión 1.0.25 - Modularización de UI de Venta al Mercado
+**Fecha:** Diciembre 2024
+
+### 🏗️ Mejoras Estructurales
+
+#### 🗂️ Refactorización de MarketSellManager.js y MarketSellUIManager.js
+- Se movió la lógica de generación y actualización de la interfaz de usuario del modal de venta (`openSellToMarketModal`, `updateSellItemOptions`, `setSellAmountMax`, `updateSellPriceDisplay`) de `MarketSellManager.js` a un nuevo archivo `MarketSellUIManager.js`.
+- `MarketSellManager.js` ahora instancia `MarketSellUIManager.js` en su constructor, delegando la gestión de la UI a esta nueva clase.
+- Esta modularización asegura que `MarketSellManager.js` se centre exclusivamente en la lógica de negocio para la ejecución de la venta, mientras que `MarketSellUIManager.js` maneja la presentación, mejorando la separación de responsabilidades.
+
+## Versión 1.0.24 - Modularización de Redimensionado del Lienzo del Mapa
+**Fecha:** Diciembre 2024
+
+### 🏗️ Mejoras Estructurales
+
+#### 🗂️ Refactorización de MapRenderer.js y CanvasResizer.js
+- Se movió la lógica de manejo de redimensionamiento del lienzo (`setupCanvas`, `queueResize`, `_resizeCanvasInternal`) de `MapRenderer.js` a un nuevo archivo `CanvasResizer.js`.
+- `MapRenderer.js` ahora instancia `CanvasResizer.js` en su constructor, delegando la gestión de las dimensiones del lienzo a esta nueva clase.
+- Esta modularización asegura que `MapRenderer.js` se centre exclusivamente en las operaciones de dibujo, mientras que `CanvasResizer.js` maneja la reactividad del lienzo a los cambios de tamaño de su contenedor, mejorando la separación de responsabilidades.
+
+## Versión 1.0.23 - Modularización de UI de Tooltip del Mapa
+**Fecha:** Diciembre 2024
+
+### 🏗️ Mejoras Estructurales
+
+#### 🗂️ Refactorización de MapInteractionManager.js y MapTooltipManager.js
+- Se movió la lógica de actualización y ocultamiento del tooltip del mapa (`updateTooltip`, `hideTooltip`) de `MapInteractionManager.js` a un nuevo archivo `MapTooltipManager.js`.
+- `MapInteractionManager.js` ahora instancia `MapTooltipManager.js` y delega la funcionalidad del tooltip a esta nueva instancia.
+- Esta modularización reduce la complejidad de `MapInteractionManager.js`, separando la lógica de presentación del tooltip de las interacciones principales del mapa.
+
+#### 🗺️ Refactorización de MapRenderer.js y MapInteractionManager.js
+- Se movió la lógica de manejo de eventos del ratón (`handleMouseDown`, `handleMouseMove`, `handleMouseUp`) de `MapRenderer.js` a `MapInteractionManager.js`.
+- Se movió la lógica de control de vista del mapa (`zoom`, `centerOnPlayerCity`) de `MapRenderer.js` a `MapInteractionManager.js`.
+- `MapRenderer.js` ahora se enfoca únicamente en la lógica de dibujo del mapa, proporcionando métodos (`setOffset`, `setScale`) para que `MapInteractionManager.js` actualice el estado de renderizado.
+- Esta modularización mejora la separación de responsabilidades, haciendo que `MapRenderer.js` sea puramente un motor de renderizado y `MapInteractionManager.js` sea el controlador de la interacción del usuario con el mapa.
+
+## Versión 1.0.22 - Modularización de UI de Comercio Privado (Control de Cantidad)
+**Fecha:** Diciembre 2024
+
+### 🏗️ Mejoras Estructurales
+
+#### 🗂️ Refactorización de PrivateTradeManager.js y PrivateTradeUIManager.js
+- Se movió la lógica de manipulación directa del DOM para la actualización de cantidades de artículos y sliders (`updatePrivateListedItemAmount`, `setPrivateListedItemMax`, `setPrivateListedItemPercentage`) de `PrivateTradeManager.js` a `PrivateTradeUIManager.js`.
+- `PrivateTradeManager.js` ahora se enfoca únicamente en la lógica de negocio, actualizando el estado interno y delegando las actualizaciones visuales a `PrivateTradeUIManager.js` a través de un nuevo método `refreshSinglePrivateItemDisplay`.
+- Esta modularización reduce aún más la complejidad de `PrivateTradeManager.js`, separando claramente la lógica de presentación de la lógica de negocio del comercio privado.

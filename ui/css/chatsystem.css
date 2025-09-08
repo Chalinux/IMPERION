@@ -1,0 +1,299 @@
+/* Chat System */
+.chat-system {
+    position: fixed;
+    bottom: clamp(5rem, 8vh, 6rem); /* Increased bottom position for better visibility */
+    left: var(--spacing-md);
+    width: var(--icon-size-lg); /* Initial width for collapsed state */
+    height: var(--icon-size-lg); /* Initial height for collapsed state */
+    background: transparent;
+    border: none;
+    display: flex; /* Use flex for internal layout */
+    flex-direction: column;
+    z-index: 500;
+    transition: width 0.3s ease, height 0.3s ease, background 0.3s ease, border 0.3s ease, border-radius 0.3s ease;
+    overflow: hidden;
+    border-radius: 50%; /* Make it round initially */
+    align-items: center; /* Center content when collapsed */
+    justify-content: center; /* Center content when collapsed */
+    padding: 0; /* Remove padding for the toggle button to be fully visible */
+}
+
+.chat-system.expanded {
+    width: clamp(28rem, 30vw, 36rem); 
+    height: clamp(22rem, 25vh, 28rem); 
+    background: linear-gradient(135deg, #3d2914 0%, #2c1810 100%);
+    border: 0.3rem solid #8b6914;
+    border-radius: 1.2rem;
+    align-items: flex-start; /* Align content to top-left when expanded */
+    justify-content: flex-start; /* Align content to top-left when expanded */
+    padding: var(--spacing-sm); /* Add padding when expanded */
+}
+
+/* Styles for the permanent chat toggle button */
+.chat-toggle {
+    position: absolute; /* Position relative to .chat-system */
+    top: 0; /* Align to top-left of parent .chat-system */
+    left: 0; /* Align to top-left of parent .chat-system */
+    width: var(--icon-size-lg); /* Size for collapsed icon */
+    height: var(--icon-size-lg); /* Size for collapsed icon */
+    background: linear-gradient(135deg, #8b6914 0%, #6b5011 100%);
+    border: 0.2rem solid #c9b037;
+    color: #ffd700;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: clamp(1.8rem, 2.5vw, 2.2rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease, transform 0.3s ease; /* Add transform to transition */
+    flex-shrink: 0;
+    z-index: 501; /* Ensure it's above other elements */
+}
+
+.chat-system.expanded .chat-toggle {
+    /* When expanded, this button becomes the close button */
+    position: relative; /* Change from absolute to relative to fit in flexbox */
+    top: auto;
+    right: auto;
+    left: auto;
+    width: var(--button-height);
+    height: var(--button-height);
+    font-size: calc(var(--font-size-base) * 1.1);
+    background: rgba(139,105,20,0.8);
+    border: 0.1rem solid #c9b037;
+    color: #ffd700;
+    transform: none; /* Remove any transform applied by collapsed state */
+    flex-shrink: 0; /* Prevent it from shrinking */
+}
+
+.chat-toggle:hover {
+    background: linear-gradient(135deg, #c9b037 0%, #8b6914 100%);
+    transform: scale(1.1);
+}
+
+.chat-system.expanded .chat-toggle:hover {
+    transform: scale(1.05); /* Keep a subtle hover effect */
+}
+
+/* Chat content wrapper - initially hidden, shown when .chat-system is expanded */
+.chat-content-wrapper {
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    flex: 1;
+    padding-top: 0; /* Remove padding, header handles spacing */
+    padding-right: 0; /* Remove padding */
+    padding-left: 0; /* Remove padding */
+    padding-bottom: 0; /* Remove padding */
+    box-sizing: border-box; /* Include padding in width/height calculation */
+}
+
+.chat-system.expanded .chat-content-wrapper {
+    display: flex;
+}
+
+.chat-tabs {
+    display: flex;
+    background: rgba(0,0,0,0.3);
+    border-bottom: 0.2rem solid #8b6914;
+    flex-shrink: 0;
+    flex-grow: 1; /* Allow tabs to take available space */
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+    gap: 0.1rem; /* Reduce gap for better fit */
+}
+
+.chat-tab {
+    flex: 1 1 auto; /* Allow flexible sizing */
+    background: transparent;
+    border: none;
+    color: #c9b037;
+    padding: calc(var(--spacing-xs) * 1.5) var(--spacing-xs); /* Adjusted padding */
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: calc(var(--font-size-base) * 0.9); /* Slightly smaller font */
+    transition: all 0.3s ease;
+    border-right: 0.1rem solid #8b6914;
+    min-width: 0; /* Allow shrinking */
+    white-space: nowrap;
+}
+
+.chat-tab:last-child {
+    border-right: none;
+}
+
+.chat-tab.active,
+.chat-tab:hover {
+    background: rgba(139,105,20,0.5);
+    color: #ffd700;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: var(--spacing-sm);
+    overflow-y: auto;
+    font-size: calc(var(--font-size-base) * 1);
+    line-height: 1.4;
+    scrollbar-width: thin;
+    scrollbar-color: #8b6914 #2c1810;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 0.6rem;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #2c1810;
+    border-radius: 1rem;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background-color: #8b6914;
+    border-radius: 1rem;
+    border: 0.1rem solid #2c1810;
+}
+
+.chat-message {
+    margin-bottom: var(--spacing-xs);
+    word-wrap: break-word;
+}
+
+.chat-timestamp {
+    color: #8b6914;
+    font-size: calc(var(--font-size-base) * 0.9);
+    margin-right: calc(var(--spacing-xs) * 1.25);
+}
+
+.chat-player {
+    color: #ffd700;
+    font-weight: 600;
+    margin-right: calc(var(--spacing-xs) * 1.25);
+}
+
+.chat-text {
+    color: #e8d5b7;
+}
+
+.chat-system-message {
+    color: #90ee90;
+    font-style: italic;
+}
+
+.chat-input-container {
+    display: flex;
+    padding: var(--spacing-sm);
+    border-top: 0.2rem solid #8b6914;
+    background: rgba(0,0,0,0.3);
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap; /* Allow wrapping */
+}
+
+/* NEW: Styles for chat header container */
+.chat-header {
+    display: flex;
+    align-items: stretch; /* Make items fill the height */
+    flex-shrink: 0;
+    background: rgba(0,0,0,0.3); /* Match tabs background */
+}
+
+.chat-close-btn-placeholder {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-xs);
+    border-bottom: 0.2rem solid #8b6914;
+}
+
+/* NEW: Styles for action buttons container */
+.chat-action-buttons {
+    display: flex;
+    gap: var(--spacing-xs);
+    margin-right: var(--spacing-xs);
+    flex-shrink: 0;
+}
+
+/* NEW: Styles for individual action buttons */
+.chat-action-btn {
+    background: transparent;
+    border: 1px solid #8b6914;
+    color: #ffd700;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.chat-action-btn:hover {
+    background-color: rgba(139,105,20,0.5);
+}
+
+#chatInput {
+    flex: 1;
+    background: rgba(0,0,0,0.5);
+    border: 0.1rem solid #8b6914;
+    color: #e8d5b7;
+    padding: calc(var(--spacing-xs) * 1.5);
+    border-radius: 0.4rem;
+    font-family: 'Cinzel', serif;
+    font-size: calc(var(--font-size-base) * 1);
+    min-width: 0; /* Allow shrinking */
+}
+
+#chatInput:focus {
+    outline: none;
+    border-color: #ffd700;
+}
+
+#chatSend {
+    background: rgba(139,105,20,0.8);
+    border: 0.1rem solid #c9b037;
+    color: #ffd700;
+    padding: calc(var(--spacing-sm) * 1) var(--spacing-sm);
+    margin-left: var(--spacing-sm);
+    border-radius: 0.4rem;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: calc(var(--font-size-base) * 1);
+    transition: all 0.3s ease;
+    box-shadow: 0 0.2rem 0.6rem rgba(0,0,0,0.3);
+    text-shadow: 0.1rem 0.1rem 0.2rem rgba(0,0,0,0.5);
+    white-space: nowrap;
+}
+
+#chatSend:hover {
+    background: rgba(201,176,55,0.8);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .chat-system.expanded {
+        width: clamp(22rem, 85vw, 30rem);
+        height: clamp(20rem, 70vh, 28rem);
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .chat-tabs {
+        font-size: calc(var(--font-size-base) * 0.8);
+    }
+    
+    .chat-tab {
+        padding: calc(var(--spacing-xs) * 1.2) calc(var(--spacing-xs) * 0.8);
+    }
+}
+
+@media (max-width: 480px) {
+    .chat-system.expanded {
+        width: clamp(20rem, 95vw, 28rem);
+        height: clamp(18rem, 60vh, 25rem);
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}

@@ -1,0 +1,24 @@
+#gameContainer {
+    display: grid;
+    /* Define grid areas for flexible layout */
+    grid-template-areas: 
+        "header"
+        "main-content"
+        "news";
+    /* Responsive row heights */
+    grid-template-rows: auto 1fr auto; /* Header and news slider auto-size, main content takes remaining space */
+    grid-template-columns: 1fr; 
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; /* Ensure nothing overflows the game container itself */
+}
+
+/* Main Game View Container (Holds Map or City) */
+#mainGameView {
+    grid-area: main-content;
+    position: relative;
+    overflow: hidden;
+    display: flex; /* Ensure flex for consistent child view positioning */
+    width: 100%;
+    height: 100%;
+}

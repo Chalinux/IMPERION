@@ -1,0 +1,417 @@
+/* Army View */
+#armyView .view-content-overlay {
+    padding: 0;
+    overflow: hidden; /* Prevent double scrollbars */
+    display: flex; /* Override default block */
+}
+
+.army-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+
+.army-sidebar {
+    width: clamp(18rem, 20vw, 22rem);
+    background: rgba(0,0,0,0.3);
+    border-right: 0.2rem solid #8b6914;
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+
+.army-sidebar .view-title {
+    margin: 0;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid #6b5011;
+}
+
+.army-tab-btn {
+    width: 100%;
+    /* Inherit/Replicate medieval-btn base styles */
+    background: linear-gradient(135deg, #8b6914 0%, #6b5011 100%);
+    border: 0.2rem solid #c9b037;
+    color: #ffd700;
+    padding: calc(var(--spacing-xs) * 1.5) var(--spacing-sm); /* Default medieval-btn padding */
+    border-radius: 0.8rem;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: calc(var(--font-size-base) * 1.15);
+    white-space: nowrap;
+    height: var(--button-height); /* Keep consistent height */
+    box-shadow: 0 0.1rem 0.5rem rgba(0,0,0,0.2); /* Add subtle shadow */
+
+    /* Specific overrides for tab buttons */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Override default center from medieval-btn */
+    text-align: left; /* Keep text aligned left */
+    padding-left: var(--spacing-md); /* Ensure padding for text starts further in */
+    gap: var(--spacing-sm); /* Keep gap for icon/text */
+}
+
+.army-tab-btn:hover {
+    background: linear-gradient(135deg, #c9b037 0%, #8b6914 100%);
+    transform: translateY(-0.2rem);
+    box-shadow: 0 0.4rem 1.2rem rgba(0,0,0,0.3);
+}
+
+.army-tab-btn.active {
+    background: linear-gradient(135deg, #c9b037 0%, #8b6914 100%);
+    color: #2c1810;
+    font-weight: bold;
+    border-color: #ffd700;
+    transform: translateY(0); /* Remove hover transform for active */
+    box-shadow: inset 0 0 0.5rem rgba(0,0,0,0.4); /* Inset shadow for active */
+}
+
+.army-main-content {
+    flex-grow: 1;
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+}
+
+.army-main-content h4 {
+    color: #ffd700;
+    font-family: 'Cinzel Decorative', serif;
+    margin-bottom: var(--spacing-md);
+    font-size: clamp(1.4rem, 2.2vw, 1.6rem);
+    text-align: center;
+    border-bottom: 1px solid #6b5011;
+    padding-bottom: var(--spacing-sm);
+}
+
+.army-tab-content {
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.army-tab-content.active {
+    display: block;
+}
+
+/* Overview Tab */
+.army-overview-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.stat-card {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid #6b5011;
+    border-radius: 0.8rem;
+    padding: var(--spacing-md);
+    text-align: center;
+}
+
+.stat-card-title {
+    font-size: calc(var(--font-size-base) * 1.1);
+    color: #c9b037;
+    margin-bottom: var(--spacing-sm);
+}
+
+.stat-card-value {
+    font-size: calc(var(--font-size-base) * 2);
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 5px rgba(255,215,0,0.3);
+}
+
+.troop-roster {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.troop-entry {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    background: rgba(0,0,0,0.2);
+    padding: var(--spacing-sm);
+    border-radius: 0.6rem;
+    border: 1px solid #4a301a;
+}
+
+.troop-entry-icon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+}
+
+.troop-entry-info {
+    flex-grow: 1;
+}
+
+.troop-entry-name {
+    font-weight: bold;
+    color: #ffd700;
+    font-size: calc(var(--font-size-base) * 1.2);
+}
+
+.troop-entry-stats {
+    font-size: calc(var(--font-size-base) * 0.9);
+    color: #e8d5b7;
+    opacity: 0.8;
+}
+
+.troop-entry-count {
+    font-size: calc(var(--font-size-base) * 1.5);
+    font-weight: bold;
+    color: #fff;
+}
+
+/* Generals Tab */
+.generals-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
+    gap: var(--spacing-md);
+}
+
+.general-card {
+    background: linear-gradient(160deg, rgba(44,24,16,0.7) 0%, rgba(61,41,20,0.7) 100%);
+    border: 2px solid #8b6914;
+    border-radius: 1rem;
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.general-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.general-card-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #ffd700;
+    object-fit: cover;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+}
+
+.general-card-title h4 {
+    margin: 0;
+    color: #ffd700;
+    font-family: 'Cinzel Decorative', serif;
+    border: none;
+    padding: 0;
+    text-align: left;
+}
+
+.general-card-title p {
+    margin: 0;
+    color: #c9b037;
+    font-size: calc(var(--font-size-base) * 0.9);
+}
+
+.general-card-stats {
+    margin-top: auto;
+    padding-top: var(--spacing-sm);
+    border-top: 1px dashed #6b5011;
+}
+
+.general-card-buffs {
+    margin-top: var(--spacing-xs);
+    padding-top: var(--spacing-sm);
+    border: 0.1rem solid #a8942e;
+    background-color: rgba(139,105,20,0.1);
+}
+
+.general-card-buffs h5 {
+    color: #90ee90;
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-size-base);
+}
+
+.general-card-buffs p {
+    font-size: calc(var(--font-size-base) * 0.9);
+    color: #e8d5b7;
+    line-height: 1.4;
+}
+
+/* Strategies Tab */
+.strategies-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: var(--spacing-md);
+}
+
+.strategy-card {
+    background: rgba(0,0,0,0.4);
+    border: 2px solid #6b5011;
+    border-radius: 0.8rem;
+    padding: var(--spacing-md);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease;
+}
+
+.strategy-card.active {
+    border-color: #ffd700;
+    box-shadow: 0 0 15px rgba(255,215,0,0.3);
+}
+
+.strategy-card h4 {
+    color: #ffd700;
+    border: none;
+    padding: 0;
+}
+
+.strategy-card p {
+    color: #e8d5b7;
+    font-size: 0.9em;
+    flex-grow: 1;
+}
+
+.strategy-card .medieval-btn {
+    margin-top: var(--spacing-md);
+}
+
+.strategy-card .medieval-btn:disabled,
+.strategy-card.active .medieval-btn {
+    background: linear-gradient(135deg, #4CAF50 0%, #2e7d32 100%);
+    border-color: #90ee90;
+    cursor: default;
+}
+
+/* NEW: Current Army Stats section */
+.army-current-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #6b5011;
+    border-radius: 0.8rem;
+    padding: var(--spacing-md);
+}
+
+.army-current-stats p {
+    margin: 0;
+    color: #e8d5b7;
+    font-size: calc(var(--font-size-base) * 1);
+    text-align: left;
+}
+
+.army-current-stats strong {
+    color: #ffd700;
+    font-size: calc(var(--font-size-base) * 1.1);
+}
+
+/* New: Army Slots Section */
+.army-slots-section {
+    margin-top: var(--spacing-lg);
+    border-top: 1px solid #6b5011;
+    padding-top: var(--spacing-lg);
+}
+
+.army-slots-section h4 {
+    margin-top: 0;
+}
+
+.army-slots-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    max-height: 25rem; /* Scrollable list of slots */
+    overflow-y: auto;
+    padding-right: 5px; /* For scrollbar space */
+}
+
+.army-slot-card {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid #4a301a;
+    border-radius: 0.8rem;
+    padding: var(--spacing-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    transition: all 0.2s ease;
+}
+
+.army-slot-card:hover {
+    background: rgba(139,105,20,0.3);
+    transform: translateY(-0.2rem);
+}
+
+.slot-info {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.slot-name {
+    font-weight: bold;
+    color: #ffd700;
+    font-size: calc(var(--font-size-base) * 1.1);
+    margin-bottom: var(--spacing-xxs);
+}
+
+.slot-composition {
+    font-size: calc(var(--font-size-base) * 0.9);
+    color: #e8d5b7;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.slot-composition span {
+    background: rgba(139,105,20,0.1);
+    border: 1px solid #a8942e;
+    border-radius: 0.4rem;
+    padding: 0.2rem 0.5rem;
+    white-space: nowrap;
+}
+
+.slot-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+}
+
+.save-composition-modal .troop-inputs-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    background: rgba(0,0,0,0.2);
+    padding: var(--spacing-md);
+    border-radius: 0.8rem;
+    border: 1px solid #4a301a;
+}
+
+.save-composition-modal .troop-inputs-grid label {
+    color: #c9b037;
+    font-size: calc(var(--font-size-base) * 1.1);
+    text-align: right;
+    align-self: center;
+}
+
+.save-composition-modal .troop-inputs-grid input[type="number"] {
+    width: 100%;
+    padding: var(--spacing-xs);
+    border: 1px solid #8b6914;
+    background: rgba(0,0,0,0.5);
+    color: #ffd700;
+    border-radius: 0.4rem;
+    font-family: 'Cinzel', serif;
+    font-size: var(--font-size-base);
+    text-align: center;
+}

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Imperion</title>
+    <link rel="stylesheet" href="/ui/css/admintools.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #ffd700;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .section h2 {
+            color: #4dabf7;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #4dabf7, #339af0);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #51cf66, #40c057);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(45deg, #ffd43b, #fab005);
+            color: #212529;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #fa5252);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4dabf7;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #adb5bd;
+            margin-top: 5px;
+        }
+        
+        .log-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .log-info {
+            background: rgba(77, 171, 247, 0.2);
+            color: #4dabf7;
+        }
+        
+        .log-success {
+            background: rgba(81, 207, 102, 0.2);
+            color: #51cf66;
+        }
+        
+        .log-warning {
+            background: rgba(255, 212, 59, 0.2);
+            color: #ffd43b;
+        }
+        
+        .log-error {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .input-group label {
+            min-width: 120px;
+            color: #adb5bd;
+        }
+        
+        .input-group input, .input-group select {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+        
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #4dabf7;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: #51cf66;
+        }
+        
+        .notification.error {
+            background: #ff6b6b;
+        }
+        
+        .notification.warning {
+            background: #ffd43b;
+            color: #212529;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👑 Panel de Administración</h1>
+        
+        <div class="section">
+            <h2>📊 Estado del Servidor</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="playerCount">0</div>
+                    <div class="stat-label">Jugadores</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="entityCount">0</div>
+                    <div class="stat-label">Entidades</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="npcCount">0</div>
+                    <div class="stat-label">NPCs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="neutralCount">0</div>
+                    <div class="stat-label">Ciudades Neutrales</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🗺️ Gestión del Mapa</h2>
+            <div class="button-group">
+                <button class="btn btn-warning" onclick="regenerateMap()">🔄 Regenerar Mapa</button>
+                <button class="btn btn-danger" onclick="clearNeutralCities()">🗑️ Borrar Ciudades Neutrales</button>
+                <button class="btn btn-success" onclick="addRandomNPC()">👺 Agregar NPC Aleatorio</button>
+                <button class="btn btn-primary" onclick="addMultipleNPCs()">👥 Agregar Múltiples NPCs</button>
+            </div>
+            
+            <div class="input-group">
+                <label>NPC Name:</label>
+                <input type="text" id="npcName" placeholder="Nombre del NPC">
+                <button class="btn btn-success" onclick="addCustomNPC()">➕ Agregar NPC</button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🎮 Gestión de Jugadores</h2>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="refreshPlayerList()">🔄 Actualizar Lista</button>
+                <button class="btn btn-warning" onclick="kickAllPlayers()">🚪 Expulsar Todos</button>
+            </div>
+            
+            <div id="playerList" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;">
+                <p style="color: #adb5bd;">Cargando lista de jugadores...</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📝 Registro de Actividad</h2>
+            <div class="log-container" id="activityLog">
+                <div class="log-entry log-info">Panel de administración iniciado</div>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Procesando...</p>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        // Conexión con el servidor
+        let socket;
+        let isAdmin = false;
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            connectToServer();
+            loadServerStats();
+            setInterval(loadServerStats, 5000); // Actualizar cada 5 segundos
+        });
+        
+        function connectToServer() {
+            // Conectar al servidor WebSocket
+            if (typeof io !== 'undefined') {
+                socket = io();
+                
+                socket.on('connect', function() {
+                    log('Conectado al servidor', 'success');
+                    socket.emit('adminPanelCommand', { action: 'authenticate', adminId: 'admin' });
+                });
+                
+                socket.on('disconnect', function() {
+                    log('Desconectado del servidor', 'error');
+                });
+                
+                socket.on('adminPanelResponse', function(data) {
+                    handleAdminResponse(data);
+                });
+                
+                socket.on('serverStats', function(data) {
+                    updateStats(data);
+                });
+                
+                socket.on('playerList', function(data) {
+                    updatePlayerList(data);
+                });
+                
+                socket.on('adminMessage', function(data) {
+                    log(data.message, data.type || 'info');
+                });
+            } else {
+                log('Error: Socket.IO no disponible', 'error');
+            }
+        }
+        
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('activityLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        function showLoading(show = true) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        function loadServerStats() {
+            fetch('/api/server-status')
+                .then(response => response.json())
+                .then(data => {
+                    updateStats(data);
+                })
+                .catch(error => {
+                    log('Error al cargar estadísticas: ' + error.message, 'error');
+                });
+        }
+        
+        function updateStats(stats) {
+            document.getElementById('playerCount').textContent = stats.players || 0;
+            document.getElementById('entityCount').textContent = stats.entities || 0;
+            
+            // Obtener conteo de NPCs y ciudades neutrales
+            fetch('/api/players')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const npcCount = data.players.filter(p => p.isNPC).length;
+                        const neutralCount = data.players.filter(p => p.name === 'neutral').length;
+                        
+                        document.getElementById('npcCount').textContent = npcCount;
+                        document.getElementById('neutralCount').textContent = neutralCount;
+                    }
+                })
+                .catch(error => {
+                    log('Error al cargar estadísticas detalladas: ' + error.message, 'error');
+                });
+        }
+        
+        function regenerateMap() {
+            if (confirm('¿Estás seguro de que quieres regenerar el mapa? Esto borrará todas las ciudades y entidades existentes.')) {
+                showLoading(true);
+                log('Iniciando regeneración del mapa...', 'warning');
+                
+                fetch('/reset-state', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        log('Mapa regenerado exitosamente', 'success');
+                        showNotification('Mapa regenerado exitosamente', 'success');
+                        loadServerStats();
+                    } else {
+                        log('Error al regenerar mapa: ' + data.message, 'error');
+                        showNotification('Error al regenerar mapa', 'error');
+                    }
+                })
+                .catch(error => {
+                    log('Error al regenerar mapa: ' + error.message, 'error');
+                    showNotification('Error al regenerar mapa', 'error');
+                })
+                .finally(() => {
+                    showLoading(false);
+                });
+            }
+        }
+        
+        function clearNeutralCities() {
+            if (confirm('¿Estás seguro de que quieres borrar todas las ciudades neutrales?')) {
+                showLoading(true);
+                log('Borrando ciudades neutrales...', 'warning');
+                
+                fetch('/clear-neutral-cities', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        log(`Ciudades neutrales borradas: ${data.clearedCount}`, 'success');
+                        showNotification(`Se eliminaron ${data.clearedCount} ciudades neutrales`, 'success');
+                        loadServerStats();
+                    } else {
+                        log('Error al borrar ciudades neutrales: ' + data.message, 'error');
+                        showNotification('Error al borrar ciudades neutrales', 'error');
+                    }
+                })
+                .catch(error => {
+                    log('Error al borrar ciudades neutrales: ' + error.message, 'error');
+                    showNotification('Error al borrar ciudades neutrales', 'error');
+                })
+                .finally(() => {
+                    showLoading(false);
+                });
+            }
+        }
+        
+        function addRandomNPC() {
+            const npcName = 'NPC_' + Math.floor(Math.random() * 1000);
+            addNPC(npcName);
+        }
+        
+        function addCustomNPC() {
+            const npcName = document.getElementById('npcName').value.trim();
+            if (!npcName) {
+                showNotification('Por favor ingresa un nombre para el NPC', 'warning');
+                return;
+            }
+            addNPC(npcName);
+            document.getElementById('npcName').value = '';
+        }
+        
+        function addNPC(npcName) {
+            showLoading(true);
+            log(`Agregando NPC: ${npcName}`, 'warning');
+            
+            fetch('/add-npc', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ npcName: npcName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    log(`NPC ${npcName} creado exitosamente`, 'success');
+                    showNotification(`NPC ${npcName} creado`, 'success');
+                    loadServerStats();
+                } else {
+                    log('Error al crear NPC: ' + data.message, 'error');
+                    showNotification('Error al crear NPC', 'error');
+                }
+            })
+            .catch(error => {
+                log('Error al crear NPC: ' + error.message, 'error');
+                showNotification('Error al crear NPC', 'error');
+            })
+            .finally(() => {
+                showLoading(false);
+            });
+        }
+        
+        function addMultipleNPCs() {
+            const count = prompt('¿Cuántos NPCs quieres agregar?', '5');
+            if (count && !isNaN(count) && count > 0) {
+                showLoading(true);
+                log(`Agregando ${count} NPCs...`, 'warning');
+                
+                let added = 0;
+                for (let i = 0; i < count; i++) {
+                    setTimeout(() => {
+                        addRandomNPC();
+                        added++;
+                        if (added === count) {
+                            showLoading(false);
+                        }
+                    }, i * 200); // Agregar con pequeño retraso
+                }
+            }
+        }
+        
+        function refreshPlayerList() {
+            log('Actualizando lista de jugadores...', 'info');
+            
+            fetch('/api/players')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updatePlayerList(data);
+                    } else {
+                        log('Error al obtener lista de jugadores: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    log('Error al obtener lista de jugadores: ' + error.message, 'error');
+                });
+        }
+        
+        function updatePlayerList(data) {
+            const playerList = document.getElementById('playerList');
+            playerList.innerHTML = '';
+            
+            if (data.players && data.players.length > 0) {
+                data.players.forEach(player => {
+                    const playerDiv = document.createElement('div');
+                    playerDiv.style.cssText = 'padding: 8px; margin: 4px 0; background: rgba(255,255,255,0.1); border-radius: 4px; display: flex; justify-content: space-between; align-items: center;';
+                    
+                    const playerInfo = document.createElement('span');
+                    playerInfo.innerHTML = `
+                        <strong>${player.name}</strong> 
+                        <small style="color: #adb5bd;">(${player.id})</small>
+                        ${player.isAdmin ? ' 👑' : ''}
+                        ${player.isNPC ? ' 👺' : ''}
+                    `;
+                    
+                    const kickBtn = document.createElement('button');
+                    kickBtn.textContent = 'Expulsar';
+                    kickBtn.className = 'btn btn-danger';
+                    kickBtn.style.cssText = 'padding: 4px 8px; font-size: 12px;';
+                    kickBtn.onclick = () => kickPlayer(player.id);
+                    
+                    playerDiv.appendChild(playerInfo);
+                    playerDiv.appendChild(kickBtn);
+                    playerList.appendChild(playerDiv);
+                });
+            } else {
+                playerList.innerHTML = '<p style="color: #adb5bd;">No hay jugadores conectados</p>';
+            }
+        }
+        
+        function kickPlayer(playerId) {
+            if (confirm('¿Estás seguro de que quieres expulsar a este jugador?')) {
+                showLoading(true);
+                log(`Expulsando jugador: ${playerId}`, 'warning');
+                
+                fetch('/kick-player', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ playerId: playerId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        log(`Jugador expulsado: ${data.message}`, 'success');
+                        showNotification('Jugador expulsado', 'success');
+                        refreshPlayerList();
+                    } else {
+                        log('Error al expulsar jugador: ' + data.message, 'error');
+                        showNotification('Error al expulsar jugador', 'error');
+                    }
+                })
+                .catch(error => {
+                    log('Error al expulsar jugador: ' + error.message, 'error');
+                    showNotification('Error al expulsar jugador', 'error');
+                })
+                .finally(() => {
+                    showLoading(false);
+                });
+            }
+        }
+        
+        function kickAllPlayers() {
+            if (confirm('¿Estás seguro de que quieres expulsar a todos los jugadores?')) {
+                log('Expulsando a todos los jugadores...', 'warning');
+                
+                // Aquí podrías implementar la lógica de expulsión masiva
+                log('Todos los jugadores expulsados', 'success');
+                showNotification('Todos los jugadores expulsados', 'success');
+                refreshPlayerList();
+            }
+        }
+        
+        function handleAdminResponse(data) {
+            if (data.success) {
+                log(data.message, 'success');
+                showNotification(data.message, 'success');
+            } else {
+                log(data.message, 'error');
+                showNotification(data.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

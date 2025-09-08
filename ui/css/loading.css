@@ -1,0 +1,121 @@
+/* Loading Screen */
+#loadingScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #2c1810 0%, #1a0f08 100%);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #ffd700;
+    font-size: var(--font-size-base);
+    text-align: center;
+}
+
+.loading-content {
+    padding: var(--spacing-lg);
+}
+
+.loading-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(3rem, 5vw, 5rem);
+    text-shadow: 3px 3px 8px rgba(0,0,0,0.7);
+    margin-bottom: 0;
+}
+
+.loading-content p {
+    font-size: calc(var(--font-size-base) * 1.2);
+    color: #c9b037;
+    margin-top: calc(var(--spacing-sm) * -1);
+    margin-bottom: var(--spacing-lg);
+}
+
+.progress-bar-container {
+    width: clamp(200px, 40vw, 400px);
+    height: clamp(1.5rem, 2vh, 2rem);
+    background: rgba(0,0,0,0.5);
+    border: 0.2rem solid #8b6914;
+    border-radius: 1rem;
+    margin: var(--spacing-lg) auto;
+    overflow: hidden;
+}
+
+#progressBar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #c9b037, #ffd700);
+    transition: width 0.3s ease-out;
+}
+
+#loadingPercentage {
+    font-size: calc(var(--font-size-base) * 1.2);
+    font-weight: bold;
+    margin-top: var(--spacing-sm);
+}
+
+#loadingStatus {
+    font-size: calc(var(--font-size-base) * 0.9) !important;
+    color: #e8d5b7 !important;
+    margin-top: calc(var(--spacing-xs) * 1) !important;
+    min-height: calc(var(--font-size-base) * 1.2);
+}
+
+/* NEW: Styles for visible loading logs */
+#loadingLogsContainer {
+    width: clamp(200px, 40vw, 400px);
+    height: clamp(80px, 15vh, 120px); /* Fixed height for scrollable area */
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #8b6914;
+    border-radius: 5px;
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm);
+    overflow-y: auto; /* Enable vertical scrolling */
+    text-align: left;
+    font-family: 'monospace'; /* Monospace font for logs */
+    font-size: calc(var(--font-size-base) * 0.8);
+    color: #90ee90; /* Light green for log messages */
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+}
+
+#loadingLogsContainer::-webkit-scrollbar {
+    width: 8px;
+}
+
+#loadingLogsContainer::-webkit-scrollbar-track {
+    background: #1a0f08;
+    border-radius: 10px;
+}
+
+#loadingLogsContainer::-webkit-scrollbar-thumb {
+    background-color: #8b6914;
+    border-radius: 10px;
+    border: 2px solid #1a0f08;
+}
+
+.loading-logs-output {
+    margin: 0;
+    line-height: 1.2;
+    white-space: pre-wrap; /* Preserve whitespace and wrap lines */
+    word-break: break-word; /* Break long words */
+}
+
+.loading-logs-output span {
+    display: block; /* Each log entry on a new line */
+    color: #e8d5b7; /* Default log text color */
+}
+
+.loading-logs-output .log-success {
+    color: #4CAF50; /* Green for success */
+}
+
+.loading-logs-output .log-error {
+    color: #f44336; /* Red for errors */
+}
+
+.loading-logs-output .log-info {
+    color: #2196F3; /* Blue for info */
+}

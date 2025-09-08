@@ -1,0 +1,158 @@
+/* Generic View Styles for Diplomacy, Trade, Dragons, News Panel, Profile */
+.game-view {
+    position: absolute; /* Changed from absolute to allow flexing if needed */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-in-out;
+    display: none; /* Hide non-active views by default */
+}
+
+.game-view.active {
+    opacity: 1;
+    pointer-events: all;
+    display: block; /* Display active views */
+}
+
+.view-background {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.view-content-overlay {
+    background: rgba(0,0,0,0.7);
+    border-radius: 0.8rem;
+    padding: var(--spacing-xl);
+    text-align: center;
+    max-width: clamp(80rem, 90vw, 100rem); /* Responsive max-width */
+    width: 90%;
+    height: 90%; /* Fixed height for consistent look */
+    box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.5);
+    border: 0.3rem solid #8b6914;
+    overflow-y: auto;
+    display: flex; 
+    flex-direction: column; 
+}
+
+.view-title {
+    font-family: 'Cinzel Decorative', serif;
+    color: #ffd700;
+    margin-bottom: var(--spacing-lg);
+    font-size: clamp(2rem, 3.5vw, 2.5rem);
+    text-shadow: 0.2rem 0.2rem 0.5rem rgba(0,0,0,0.7);
+}
+
+.trade-tabs {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg); /* Space below tabs */
+    flex-shrink: 0; /* Prevent tabs from shrinking */
+}
+
+.trade-tab {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: 0.8rem 0.8rem 0 0; /* Rounded top corners */
+    border-bottom: none; /* No bottom border for tabs */
+    background: linear-gradient(135deg, #6b5011 0%, #8b6914 100%); /* Inverted gradient for inactive */
+    color: #c9b037;
+    font-weight: 600;
+    font-size: calc(var(--font-size-base) * 1.1);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-shadow: none; /* Remove text-shadow for inactive tabs */
+    border: 0.2rem solid #8b6914; /* Default border */
+    border-bottom: none; /* Prevent double border */
+}
+
+.trade-tab:hover {
+    transform: translateY(-0.1rem); /* Slight lift on hover */
+    box-shadow: 0 0.2rem 0.5rem rgba(0,0,0,0.3);
+}
+
+.trade-tab.active {
+    background: linear-gradient(135deg, #8b6914 0%, #6b5011 100%); /* Active tab has primary button gradient */
+    color: #ffd700;
+    text-shadow: 0.1rem 0.1rem 0.2rem rgba(0,0,0,0.5);
+    border-color: #c9b037; /* Active tab has brighter border */
+    border-bottom: 0.2rem solid transparent; /* Mimic tab overlap */
+    transform: translateY(0); /* Ensure it's not lifted */
+    box-shadow: none;
+    z-index: 1; /* Bring active tab slightly forward */
+}
+
+.market-section {
+    flex-grow: 1; /* Take up remaining vertical space */
+    display: none; /* Hidden by default */
+    overflow-y: auto; /* Allow content to scroll if it overflows */
+    padding-top: var(--spacing-xs); /* Small padding top to avoid content hitting tab border */
+    border-top: 0.2rem solid #8b6914; /* Separator for content area */
+    margin-top: calc(var(--spacing-lg) * -1); /* Pull content up to meet tabs */
+    padding-top: var(--spacing-lg); /* Compensate for negative margin */
+}
+
+.market-section.active {
+    display: block; /* Show active section */
+}
+
+.view-section {
+    margin-bottom: var(--spacing-lg); /* Keep consistent spacing */
+    padding: var(--spacing-md); /* Add padding here for content within sections */
+    background: rgba(139,105,20,0.2); /* Add background here for consistency */
+    border: 0.1rem solid #8b6914; /* Add border here for consistency */
+    border-radius: 0.8rem; /* Add border radius */
+}
+
+.view-section h4 {
+    color: #ffd700;
+    margin-bottom: var(--spacing-sm);
+    font-size: clamp(1.3rem, 2vw, 1.4rem);
+}
+
+.list-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(clamp(25rem, 30vw, 30rem), 1fr)); /* Responsive list items */
+    gap: var(--spacing-md);
+    max-height: unset; /* Let it expand or use parent overflow */
+}
+
+#diplomacy-list-container .list-item .item-actions {
+    grid-template-columns: 1fr; /* Stack buttons vertically for better touch on mobile */
+    display: grid;
+    gap: var(--spacing-xs);
+}
+
+.list-item {
+    background: rgba(0,0,0,0.4);
+    border: 0.1rem solid #c9b037;
+    border-radius: 0.6rem;
+    padding: var(--spacing-sm);
+    text-align: left;
+    transition: all 0.2s ease;
+}
+
+.list-item:hover {
+    background: rgba(139,105,20,0.4);
+    transform: translateY(-0.2rem);
+}
+
+.item-title {
+    color: #ffd700;
+    margin-bottom: var(--spacing-xs);
+    font-size: clamp(1.1rem, 1.5vw, 1.2rem);
+}
+
+.item-actions {
+    margin-top: var(--spacing-sm);
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap; /* Allow actions to wrap */
+}

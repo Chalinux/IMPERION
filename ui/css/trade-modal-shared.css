@@ -1,0 +1,352 @@
+/* Shared Styles for Trade Modals (Private Trade & other future modals) */
+
+/* Combines trade-shared-core.css, trade-shared-cards.css, trade-shared-balance.css, private-trade.css */
+
+/* From trade-shared-core.css */
+.advanced-trade-panel {
+    max-width: 95%;
+    margin: 0 auto;
+}
+
+.trade-section {
+    background: rgba(139,105,20,0.2);
+    border: 0.1rem solid #8b6914;
+    border-radius: 0.8rem;
+    padding: var(--spacing-lg); /* Increased padding from md */
+    margin-bottom: var(--spacing-md);
+    box-shadow: inset 0 0 0.8rem rgba(0,0,0,0.3);
+}
+
+.trade-section h4 {
+    color: #ffd700;
+    margin-bottom: var(--spacing-sm);
+    font-size: clamp(1.2rem, 1.8vw, 1.2rem);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    text-shadow: 0.1rem 0.1rem 0.2rem rgba(0,0,0,0.5);
+}
+
+/* From trade-shared-cards.css */
+.trade-value-badge {
+    background: linear-gradient(135deg, #ffd700 0%, #c9b037 100%);
+    color: #2c1810;
+    padding: 0.4rem 0.8rem;
+    border-radius: 1.5rem;
+    font-size: calc(var(--font-size-base) * 0.9);
+    font-weight: bold;
+    box-shadow: 0 0.2rem 0.5rem rgba(0,0,0,0.3);
+    border: 0.1rem solid #8b6914;
+    white-space: nowrap;
+}
+
+.trade-value-badge.high-value {
+    background: linear-gradient(135deg, #ffcc00 0%, #ffaa00 100%);
+    font-size: calc(var(--font-size-base) * 1.1);
+}
+
+.trade-value-badge.medium-value {
+    background: linear-gradient(135deg, #c9b037 0%, #a8942e 100%);
+}
+
+.advanced-trade-card {
+    background: linear-gradient(180deg, rgba(61,41,20,0.6) 0%, rgba(44,24,16,0.6) 100%);
+    border: 0.2rem solid #8b6914;
+    border-radius: 1rem;
+    padding: var(--spacing-lg); /* Increased padding from md */
+    box-shadow: 0 0.4rem 1rem rgba(0,0,0,0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex; /* Added flex to structure content */
+    flex-direction: column; /* Stack content vertically */
+    justify-content: space-between; /* Push actions to bottom */
+}
+
+.advanced-trade-card:hover {
+    transform: translateY(-0.3rem);
+    box-shadow: 0 0.6rem 1.5rem rgba(0,0,0,0.4);
+}
+
+.trade-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.trade-card-header h5 {
+    color: #ffd700;
+    font-size: clamp(1rem, 1.5vw, 1.1rem);
+    text-shadow: 0.1rem 0.1rem 0.2rem rgba(0,0,0,0.5);
+}
+
+/* Adjust icon alignment in trade cards - this is now more specific for inline icons */
+/* REMOVED: .advanced-trade-card .trade-item-info img */
+
+.trade-card-content {
+    flex-grow: 1; /* Allow content to take available space */
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm); /* Spacing between display, availability, fairness */
+}
+
+.trade-item-display {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: var(--spacing-md); /* Increased gap between offer and request sections */
+    background: rgba(0,0,0,0.3); /* Slightly darker background for this section */
+    border-radius: 0.6rem;
+    padding: var(--spacing-md); /* Increased padding from sm */
+    border: 0.1rem solid rgba(139,105,20,0.5);
+}
+
+.trade-offer-section, .trade-request-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1; /* Distribute space evenly */
+}
+
+.trade-label {
+    font-size: calc(var(--font-size-base) * 1); /* Increased font size for labels */
+    color: #c9b037;
+    margin-bottom: var(--spacing-xxs); /* Small space below label */
+}
+
+.trade-item-info {
+    display: flex;
+    flex-direction: column; /* Stack amount/name and value */
+    align-items: center; /* Center horizontally */
+    font-size: calc(var(--font-size-base) * 1.1); /* Increased font size for item info */
+    color: #e8d5b7;
+    font-weight: 600;
+}
+
+.trade-item-amount-name {
+    display: flex; /* Allow content (icon and text) to be inline */
+    align-items: center;
+    white-space: nowrap; /* Prevent wrapping for icon + name */
+}
+
+.trade-item-inline-icon {
+    width: clamp(1.5rem, 2vw, 2rem); /* Increased icon size */
+    height: clamp(1.5rem, 2vw, 2rem); /* Increased icon size */
+    object-fit: contain;
+    vertical-align: middle;
+    margin-right: 0.4rem;
+    image-rendering: pixelated;
+    filter: drop-shadow(0.1rem 0.1rem 0.2rem rgba(0,0,0,0.5));
+}
+
+.trade-item-info small {
+    font-size: calc(var(--font-size-base) * 0.9); /* Keep small tag slightly smaller */
+    color: #a8942e; /* Subtler color for value */
+    margin-top: var(--spacing-xxs); /* Small space above value */
+}
+
+.trade-arrow {
+    font-size: clamp(1.8rem, 2.5vw, 2.2rem); /* Larger arrow */
+    color: #ffd700;
+    text-shadow: 0 0 0.5rem rgba(255,215,0,0.5);
+    flex-shrink: 0; /* Prevent arrow from shrinking */
+    padding: 0 var(--spacing-xs); /* Small padding around arrow */
+}
+
+.fairness-indicator {
+    text-align: center;
+    font-weight: bold;
+    font-size: calc(var(--font-size-base) * 1.2);
+    padding: var(--spacing-sm);
+    border-radius: 0.8rem;
+    background: rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    box-shadow: inset 0 0 0.6rem rgba(0,0,0,0.3);
+    margin-top: var(--spacing-sm); /* Added margin */
+}
+
+.fairness-indicator.fair-trade {
+    background: linear-gradient(45deg, rgba(144,238,144,0.2) 0%, rgba(76,175,80,0.2) 100%);
+    color: #90ee90;
+    border: 0.1rem solid #90ee90;
+}
+
+.fairness-indicator.generous-trade {
+    background: linear-gradient(45deg, rgba(255,215,0,0.2) 0%, rgba(201,176,55,0.2) 100%);
+    color: #ffd700;
+    border: 0.1rem solid #ffd700;
+}
+
+.fairness-indicator.demanding-trade {
+    background: linear-gradient(45deg, rgba(255,107,107,0.2) 0%, rgba(244,67,54,0.2) 100%);
+    color: #ff6b6b;
+    border: 0.1rem solid #ff6b6b;
+}
+
+.availability-check {
+    text-align: center;
+    margin-top: var(--spacing-xs); /* Added margin */
+    font-size: calc(var(--font-size-base) * 1); /* Increased font size */
+}
+.availability-check span {
+    font-weight: 600;
+    padding: var(--spacing-xxs) var(--spacing-xs); /* Small padding for readability */
+    border-radius: 0.4rem;
+}
+.availability-ok {
+    color: #90ee90;
+    background: rgba(76,175,80,0.15);
+    border: 0.1rem solid rgba(76,175,80,0.3);
+}
+.availability-error {
+    color: #f44336;
+    background: rgba(244,67,54,0.15);
+    border: 0.1rem solid rgba(244,67,54,0.3);
+}
+
+/* From trade-shared-balance.css */
+.trade-balance-container {
+    width: 100%;
+    height: 2.5rem;
+    margin-top: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    position: relative;
+    background: rgba(0,0,0,0.4);
+    border: 0.2rem solid #8b6914;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: inset 0 0 0.8rem rgba(0,0,0,0.3);
+}
+
+.trade-balance-bar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #f44336 0%, #ffd700 50%, #4CAF50 100%);
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.trade-balance-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0.6rem;
+    background-color: #fff;
+    border: 0.1rem solid #333;
+    z-index: 1;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: left 0.3s ease-out;
+    box-shadow: 0 0 0.8rem rgba(255,255,255,0.8);
+}
+
+/* NEW: Generic styles for trade sliders, moved from public-sell-trade.css and private-trade.css */
+.trade-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 1rem;
+    background: #554422;
+    outline: none;
+    border-radius: 0.5rem;
+    transition: background 0.3s ease;
+    flex-grow: 1; /* Default to taking available space */
+}
+
+.trade-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 2.2rem;
+    height: 2.2rem;
+    background: #ffd700;
+    border: 0.2rem solid #8b6914;
+    border-radius: 50%;
+    cursor: grab;
+    box-shadow: 0 0.2rem 0.5rem rgba(0,0,0,0.4);
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.trade-slider::-moz-range-thumb {
+    width: 2.2rem;
+    height: 2.2rem;
+    background: #ffd700;
+    border: 0.2rem solid #8b6914;
+    border-radius: 50%;
+    cursor: grab;
+    box-shadow: 0 0.2rem 0.5rem rgba(0,0,0,0.4);
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.trade-slider:active::-webkit-slider-thumb,
+.trade-slider:active::-moz-range-thumb {
+    background: #c9b037;
+    border-color: #ffd700;
+    cursor: grabbing;
+}
+
+/* Battle action button styling */
+.trade-card-actions {
+    margin-top: var(--spacing-lg); /* Increased top margin for separation */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.accept-trade-btn {
+    width: 100%; /* Make button fill available width */
+    font-size: calc(var(--font-size-base) * 1.2); /* Slightly larger font */
+    padding: var(--spacing-sm) var(--spacing-lg); /* More padding */
+    background: linear-gradient(135deg, #4CAF50 0%, #2e7d32 100%); /* Green gradient */
+    border-color: #90ee90; /* Brighter border */
+    color: #e8d5b7; /* Lighter text for contrast */
+    text-shadow: 0.1rem 0.1rem 0.2rem rgba(0,0,0,0.6);
+}
+
+.accept-trade-btn:hover {
+    background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+}
+
+.accept-trade-btn.disabled {
+    background: linear-gradient(135deg, #616161 0%, #424242 100%); /* Grey out when disabled */
+    border-color: #757575;
+    color: #bdbdbd;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none; /* No hover effect when disabled */
+}
+.accept-trade-btn.disabled:hover { /* Override hover for disabled */
+    background: linear-gradient(135deg, #616161 0%, #424242 100%);
+}
+
+.cancel-trade-btn {
+    width: 100%; /* Make button fill available width */
+    font-size: calc(var(--font-size-base) * 1.2); /* Slightly larger font */
+    padding: var(--spacing-sm) var(--spacing-lg); /* More padding */
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); /* Red gradient for cancel */
+    border-color: #ff6b6b; /* Brighter border */
+    color: #e8d5b7; /* Lighter text for contrast */
+    text-shadow: 0.1rem 0.1rem 0.2rem rgba(0,0,0,0.6);
+}
+
+.cancel-trade-btn:hover {
+    background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.input-row label {
+    flex-shrink: 0;
+    font-size: var(--font-size-base);
+    color: #c9b037;
+    width: clamp(7rem, 9vw, 9rem);
+    text-align: right;
+}
+
+.trade-select {
+    background: rgba(0,0,0,0.6);
+}

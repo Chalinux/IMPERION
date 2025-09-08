@@ -1,0 +1,20 @@
+<div class="chat-header">
+    <div class="chat-tabs">
+        <button class="chat-tab active" data-channel="mundo">🌍 Mundo</button>
+        <button class="chat-tab" data-channel="clan">⚔️ Clan</button>
+        <button class="chat-tab" data-channel="region">🏰 Región</button>
+        <button class="chat-tab" data-channel="comercio">💰 Comercio</button>
+    </div>
+    <div class="chat-close-btn-placeholder">
+        <!-- The #chatToggle button will be moved here by JS when expanded -->
+    </div>
+</div>
+<div class="chat-messages" id="chatMessages"></div>
+<div class="chat-input-container">
+    <div class="chat-action-buttons">
+        <button id="chatEmojiBtn" class="chat-action-btn" title="Añadir Emoji">😊</button>
+        <button id="chatClearBtn" class="chat-action-btn" title="Limpiar Chat">🗑️</button>
+    </div>
+    <input type="text" id="chatInput" placeholder="Escribe un mensaje..." maxlength="200">
+    <button id="chatSend">Enviar</button>
+</div>

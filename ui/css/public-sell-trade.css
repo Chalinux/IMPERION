@@ -1,0 +1,291 @@
+/* Selling to Global Market Modal Styles */
+.minimalist-sell-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md); /* Increased padding */
+    max-width: clamp(60rem, 70vw, 70rem);
+    margin: 0 auto;
+}
+
+.minimalist-sell-panel h3 {
+    font-family: 'Cinzel Decorative', serif;
+    color: #ffd700;
+    font-size: clamp(1.8rem, 2.5vw, 2rem);
+    text-shadow: 0.2rem 0.2rem 0.5rem rgba(0,0,0,0.7);
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.sell-section-main, .sell-section-price {
+    background: rgba(139,105,20,0.2);
+    border: 0.1rem solid #8b6914;
+    border-radius: 0.8rem;
+    padding: var(--spacing-md); /* Increased padding */
+    box-shadow: inset 0 0 1rem rgba(0,0,0,0.4);
+}
+
+.sell-section-main h4, .sell-section-price h4 {
+    color: #ffd700;
+    margin-bottom: var(--spacing-md);
+    font-size: clamp(1.4rem, 2vw, 1.6rem);
+    text-align: center;
+    text-shadow: 0.1rem 0.1rem 0.3rem rgba(0,0,0,0.6);
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.input-row label {
+    flex-shrink: 0;
+    font-size: var(--font-size-base);
+    color: #c9b037;
+    width: clamp(7rem, 9vw, 9rem);
+    text-align: right;
+}
+
+/* NEW: Custom Select Component Styles */
+.custom-select-wrapper {
+    position: relative;
+    flex-grow: 1; /* Allow wrapper to take available space */
+}
+
+.custom-select-btn {
+    width: 100%;
+    text-align: left;
+    padding-right: 3em; /* Space for the arrow */
+    position: relative;
+    justify-content: flex-start; /* Align text to left */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.custom-select-btn::after {
+    content: '▼';
+    position: absolute;
+    right: 1em;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.2s ease;
+    pointer-events: none; /* Let clicks pass through to button */
+}
+
+.custom-select-wrapper.open .custom-select-btn::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.custom-select-options {
+    display: none;
+    position: absolute;
+    background: #2c1810;
+    border: 0.2rem solid #8b6914;
+    border-radius: 0.8rem;
+    z-index: 1002;
+    width: 100%;
+    max-height: 20rem;
+    overflow-y: auto;
+    margin-top: var(--spacing-xs);
+    box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.5);
+}
+
+.custom-select-options.visible {
+    display: block;
+}
+
+.custom-select-option {
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    color: #e8d5b7;
+    transition: all 0.2s ease;
+    border-bottom: 0.1rem solid #4a301a;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+.custom-select-option:last-child {
+    border-bottom: none;
+}
+
+.custom-select-option:hover {
+    background-color: rgba(139,105,20,0.4);
+    color: #ffd700;
+}
+
+/* NEW: Custom Number Input Styles */
+.custom-number-input-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    background: rgba(0,0,0,0.6);
+    border: 0.2rem solid #8b6914;
+    border-radius: 0.8rem;
+    padding: var(--spacing-xs);
+    width: 100%;
+    max-width: 25rem;
+    margin: 0 auto;
+}
+
+.custom-number-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #ffd700;
+    text-align: center;
+    font-size: clamp(1.4rem, 2vw, 1.6rem);
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    -moz-appearance: textfield; /* Remove arrows in Firefox */
+}
+.custom-number-input::-webkit-outer-spin-button,
+.custom-number-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.custom-number-input:focus {
+    outline: none;
+}
+
+.custom-number-btn {
+    width: var(--button-height);
+    height: var(--button-height);
+    font-size: clamp(1.4rem, 2vw, 1.6rem);
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+/* For the specific input #sell-price-imperion, make it take full width of its container, and center the container */
+.sell-section-price .input-row {
+    justify-content: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.sell-section-price .input-row label {
+    width: auto;
+    text-align: right;
+    font-size: calc(var(--font-size-base) * 1.2);
+    color: #ffd700;
+}
+
+/* Specific styling for the sell price input */
+#sell-price-imperion {
+    font-size: clamp(1.4rem, 2vw, 1.6rem);
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.amount-slider-container {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+}
+
+.amount-slider-container label {
+    flex-shrink: 0;
+    font-size: var(--font-size-base);
+    color: #c9b037;
+    width: clamp(7rem, 9vw, 9rem);
+    text-align: right;
+}
+
+.slider-and-value {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background: rgba(0,0,0,0.6);
+    border: 0.2rem solid #8b6914;
+    border-radius: 0.8rem;
+    padding: var(--spacing-xs) var(--spacing-md);
+}
+
+/* REMOVED .trade-slider styles, now in trade-modal-shared.css */
+
+.slider-value {
+    font-size: var(--font-size-base);
+    color: #ffd700;
+    font-weight: bold;
+    min-width: 5rem;
+    text-align: center;
+}
+
+/* New container for the combined item and imperion summary */
+.item-summary-display {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: rgba(61, 41, 20, 0.7);
+    border: 0.2rem solid #8b6914;
+    border-radius: 1rem;
+    box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.4), inset 0 0 1rem rgba(0,0,0,0.2);
+    font-size: calc(var(--font-size-base) * 1.3); /* Increased font size */
+    text-shadow: 0.1rem 0.1rem 0.3rem rgba(0,0,0,0.7);
+}
+
+.display-item-offered, .display-imperion-received {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: #e8d5b7;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* New style for icons within the trade summary display */
+.trade-item-icon {
+    width: clamp(3.5rem, 4.5vw, 5rem); /* Increased icon size */
+    height: clamp(3.5rem, 4.5vw, 5rem); /* Increased icon size */
+    image-rendering: pixelated;
+    filter: drop-shadow(0.2rem 0.2rem 0.4rem rgba(0,0,0,0.5));
+}
+
+.imperion-trade-icon {
+    width: clamp(2.2rem, 3vw, 3.2rem);
+    height: clamp(2.2rem, 3vw, 3.2rem);
+    filter: drop-shadow(0.2rem 0.2rem 0.4rem rgba(0,0,0,0.5));
+}
+
+.display-item-offered .item-name-amount {
+    font-weight: bold;
+    color: #ffd700;
+    font-size: var(--font-size-base);
+}
+
+.display-item-offered .item-base-value-text {
+    font-size: calc(var(--font-size-base) * 0.8);
+    color: #c9b037;
+    white-space: normal;
+}
+
+.trade-arrow-large {
+    font-size: clamp(4rem, 6vw, 6rem);
+    color: #ffd700;
+    animation: pulse 2s infinite;
+    text-shadow: 0 0 0.8rem rgba(255,215,0,0.5);
+    margin: 0 var(--spacing-lg);
+}
+
+#recommended-price-display {
+    display: block;
+    text-align: center;
+    font-size: var(--font-size-base);
+    color: #c9b037;
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Fix overlapping issue with icon/text in balance display */
+.sell-section-price .display-imperion-received img.imperion-trade-icon {
+    margin-right: 8px;
+}

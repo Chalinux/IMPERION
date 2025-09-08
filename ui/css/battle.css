@@ -1,0 +1,660 @@
+/* New styles for Battle Report Modal */
+.battle-report-modal {
+    max-width: clamp(80rem, 90vw, 95rem);
+    margin: 0 auto;
+    padding: var(--spacing-md);
+    text-align: center;
+    background: none;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.report-title {
+    font-family: 'Cinzel Decorative', serif;
+    color: #ffd700;
+    font-size: clamp(2rem, 3.5vw, 2.5rem);
+    margin-bottom: var(--spacing-lg);
+    text-shadow: 0.2rem 0.2rem 0.5rem rgba(0,0,0,0.7);
+}
+
+.letter-parchment {
+    background-color: #f7e6c2;
+    background-image: 
+        radial-gradient(at 10% 90%, rgba(139,105,20,0.1), transparent 50%),
+        radial-gradient(at 90% 10%, rgba(139,105,20,0.1), transparent 50%),
+        radial-gradient(at 50% 50%, rgba(139,105,20,0.05), transparent 60%);
+    border: 0.6rem double #8b6914;
+    border-radius: 1.8rem;
+    padding: var(--spacing-xl);
+    box-shadow: 0 0.8rem 2.5rem rgba(0,0,0,0.6), inset 0 0 2.5rem rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.letter-parchment::before, .letter-parchment::after {
+    content: '';
+    position: absolute;
+    background-color: rgba(139, 105, 20, 0.08);
+    border-radius: 50%;
+    filter: blur(1.2rem);
+    opacity: 0.8;
+    z-index: 0;
+}
+
+.letter-parchment::before {
+    width: 85%;
+    height: 125%;
+    top: -1.5rem;
+    left: -2rem;
+    transform: rotate(7deg);
+}
+
+.letter-parchment::after {
+    width: 105%;
+    height: 85%;
+    bottom: -1.5rem;
+    right: -1.5rem;
+    transform: rotate(-5deg);
+}
+
+.report-header {
+    min-height: clamp(25rem, 30vh, 30rem);
+    background-image: url('battle_report_dragon.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-color: rgba(0, 0, 0, 0.85);
+    padding: var(--spacing-lg);
+    border-radius: 1.2rem;
+    margin-bottom: var(--spacing-xl);
+    box-shadow: inset 0 0 2rem rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.report-header h4 {
+    color: #ffd700;
+    text-shadow: 0.2rem 0.2rem 0.6rem rgba(0,0,0,0.9);
+    margin-bottom: var(--spacing-sm);
+    font-size: clamp(1.8rem, 2.5vw, 2rem);
+}
+
+.report-header p {
+    color: #c9b037;
+    font-size: var(--font-size-base);
+    text-shadow: 0.1rem 0.1rem 0.3rem rgba(0,0,0,0.8);
+}
+
+.report-summary-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+}
+
+.report-summary-info > div {
+    background: rgba(139,105,20,0.1);
+    border: 0.2rem solid rgba(139,105,20,0.4);
+    border-radius: 1rem;
+    padding: var(--spacing-sm);
+    color: #4a301a;
+    box-shadow: inset 0 0 1rem rgba(0,0,0,0.2);
+}
+
+/* NEW: Style for casualty breakdown section */
+.casualty-breakdown h5 {
+    font-family: 'Cinzel Decorative', serif;
+    color: #6b5011;
+    margin-bottom: var(--spacing-sm);
+    font-size: clamp(1.2rem, 1.8vw, 1.3rem);
+}
+.casualty-breakdown p {
+    margin: var(--spacing-xs) 0;
+    font-size: var(--font-size-base);
+    display: flex;
+    align-items: center;
+}
+
+.report-summary-info h5 {
+    font-family: 'Cinzel Decorative', serif;
+    color: #6b5011;
+    margin-bottom: var(--spacing-sm);
+    font-size: clamp(1.2rem, 1.8vw, 1.3rem);
+}
+
+.report-summary-info p {
+    margin: var(--spacing-xs) 0;
+    font-size: var(--font-size-base);
+}
+
+.report-summary-info strong {
+    color: #8b6914;
+    font-size: calc(var(--font-size-base) * 1.1);
+}
+
+.report-date, .report-location {
+    font-size: calc(var(--font-size-base) * 0.9);
+    margin-bottom: var(--spacing-xs);
+    color: #4a301a;
+}
+
+.report-combatants strong {
+    color: #6b5011;
+}
+
+.report-section {
+    background: rgba(139,105,20,0.12);
+    border: 0.2rem solid rgba(139,105,20,0.4);
+    border-radius: 1rem;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: inset 0 0 0.8rem rgba(0,0,0,0.2);
+}
+
+.report-section h4 {
+    font-family: 'Cinzel Decorative', serif;
+    color: #8b6914;
+    margin-bottom: var(--spacing-md);
+    font-size: clamp(1.4rem, 2.2vw, 1.6rem);
+    text-align: center;
+    text-shadow: 0.1rem 0.1rem 0.3rem rgba(0,0,0,0.3);
+}
+
+.battle-outcome {
+    text-align: center;
+    border-width: 0.2rem;
+}
+
+.battle-outcome.victory {
+    background: rgba(76,175,80,0.18);
+    border-color: #4CAF50;
+    color: #2c1810;
+}
+
+.battle-outcome.defeat {
+    background: rgba(244,67,54,0.18);
+    border-color: #f44336;
+    color: #2c1810;
+}
+
+.result-text {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.8rem, 2.5vw, 2rem);
+    margin-bottom: var(--spacing-sm);
+    color: #6b5011;
+    text-shadow: 0.2rem 0.2rem 0.4rem rgba(0,0,0,0.5);
+}
+
+.battle-outcome.victory .result-text {
+    color: #4CAF50;
+}
+
+.battle-outcome.defeat .result-text {
+    color: #f44336;
+}
+
+.casualty-stats p {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-sm);
+    color: #4a301a;
+}
+
+.casualty-stats strong {
+    color: #6b5011;
+    font-size: calc(var(--font-size-base) * 1.1);
+}
+
+.troop-icon-small {
+    width: 2.4rem;
+    height: 2.4rem;
+    vertical-align: middle;
+    image-rendering: pixelated;
+    margin-right: 0.8rem;
+    filter: drop-shadow(0.1rem 0.1rem 0.3rem rgba(0,0,0,0.6));
+}
+
+.troop-icon-medium {
+    width: 3.2rem;
+    height: 3.2rem;
+    vertical-align: middle;
+    image-rendering: pixelated;
+    margin-right: 1rem;
+    filter: drop-shadow(0.1rem 0.1rem 0.3rem rgba(0,0,0,0.6));
+}
+
+.round-details {
+    background: rgba(0,0,0,0.08);
+    border: 0.1rem solid rgba(139,105,20,0.3);
+}
+
+.round-summary {
+    background: rgba(139,105,20,0.1);
+    border: 0.1rem dashed rgba(139,105,20,0.3);
+    border-radius: 0.6rem;
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.round-summary:last-child {
+    margin-bottom: 0;
+}
+
+.round-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    color: #6b5011;
+    margin-bottom: var(--spacing-sm);
+    text-align: center;
+}
+
+.round-summary p {
+    font-size: calc(var(--font-size-base) * 0.9);
+    color: #4a301a;
+    margin: 0.4rem 0;
+}
+
+/* NEW: Specific styles for round details */
+.attacker-round, .defender-round {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.round-summary p strong {
+    color: #8b6914;
+}
+
+.troop-count {
+    font-weight: bold;
+    color: #8b6914;
+}
+
+.casualties {
+    color: #f44336;
+    font-weight: bold;
+}
+
+.battle-log-detail {
+    font-size: calc(var(--font-size-base) * 0.8);
+    color: #5d4037;
+    margin-left: 0.6rem;
+    font-style: italic;
+}
+
+.report-footer {
+    text-align: center;
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-md);
+    border-top: 0.2rem dashed #8b6914;
+    font-style: italic;
+    font-size: calc(var(--font-size-base) * 0.9);
+    color: #4a301a;
+}
+
+/* NEW STYLES for Attack Planning V2 */
+.attack-planning-v2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    max-height: 80vh;
+    overflow: hidden;
+}
+
+.attack-panel {
+    background: rgba(0,0,0,0.3);
+    border: 0.2rem solid #6b5011;
+    border-radius: 1rem;
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    box-shadow: inset 0 0 1rem rgba(0,0,0,0.4);
+    overflow-y: auto;
+}
+
+.attack-panel h4 {
+    font-family: 'Cinzel Decorative', serif;
+    color: #ffd700;
+    text-align: center;
+    font-size: clamp(1.6rem, 2.5vw, 1.8rem);
+    margin-bottom: var(--spacing-sm);
+    text-shadow: 0.1rem 0.1rem 0.3rem rgba(0,0,0,0.6);
+}
+
+.attack-panel h5 {
+    color: #c9b037;
+    margin-bottom: var(--spacing-xs);
+    border-bottom: 1px solid #6b5011;
+    padding-bottom: var(--spacing-xs);
+}
+
+.general-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    background: rgba(0,0,0,0.2);
+    padding: var(--spacing-sm);
+    border-radius: 0.8rem;
+}
+
+.general-avatar {
+    width: 6.4rem;
+    height: 6.4rem;
+    border-radius: 50%;
+    border: 3px solid #ffd700;
+    object-fit: cover;
+    image-rendering: pixelated;
+}
+
+.general-details h5 {
+    margin: 0 0 var(--spacing-xs) 0;
+    border-bottom: none;
+    font-size: clamp(1.2rem, 1.8vw, 1.4rem);
+}
+
+.general-details p {
+    margin: 0;
+    font-size: var(--font-size-base);
+    color: #e8d5b7;
+}
+
+.general-selection-list {
+    max-height: 15rem;
+    overflow-y: auto;
+    padding: var(--spacing-xs);
+    background: rgba(0,0,0,0.2);
+    border-radius: 0.8rem;
+}
+
+.general-selection-item {
+    margin-bottom: var(--spacing-xs);
+}
+
+.general-selection-item input[type="radio"] {
+    display: none;
+}
+
+.general-selection-item label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: rgba(139,105,20,0.2);
+    border: 2px solid transparent;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.general-selection-item label:hover {
+    background: rgba(139,105,20,0.4);
+    border-color: #8b6914;
+}
+
+.general-selection-item input:checked + label {
+    background: rgba(139,105,20,0.6);
+    border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.general-selection-icon {
+    width: 4rem;
+    height: 4rem;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.general-selection-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.general-selection-info strong {
+    color: #ffd700;
+}
+
+.general-selection-info span {
+    font-size: 0.8em;
+    color: #c9b037;
+}
+
+.dragon-selection-list {
+    max-height: 15rem;
+    overflow-y: auto;
+    padding: var(--spacing-xs);
+    background: rgba(0,0,0,0.2);
+    border-radius: 0.8rem;
+}
+
+.dragon-selection-item {
+    margin-bottom: var(--spacing-xs);
+}
+
+.dragon-selection-item input[type="radio"] {
+    display: none;
+}
+
+.dragon-selection-item label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: rgba(139,105,20,0.2);
+    border: 2px solid transparent;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dragon-selection-item label:hover {
+    background: rgba(139,105,20,0.4);
+    border-color: #8b6914;
+}
+
+.dragon-selection-item input:checked + label {
+    background: rgba(139,105,20,0.6);
+    border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.dragon-selection-icon {
+    width: 4rem;
+    height: 4rem;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.dragon-selection-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.dragon-selection-info strong {
+    color: #ffd700;
+}
+
+.dragon-selection-info span {
+    font-size: 0.8em;
+    color: #c9b037;
+}
+
+.troop-selection-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.troop-selection-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.troop-details {
+    flex-grow: 1;
+}
+
+.troop-details strong {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    color: #e8d5b7;
+}
+
+.troop-slider {
+    width: 100%;
+}
+
+.troop-input {
+    width: 6rem;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid #8b6914;
+    color: #ffd700;
+    padding: var(--spacing-xs);
+    border-radius: 0.4rem;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+}
+
+.troop-input:focus {
+    outline: none;
+    border-color: #ffd700;
+}
+
+.army-summary {
+    margin-top: var(--spacing-sm);
+    text-align: center;
+}
+
+.army-summary p {
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.troops-assigned-bar {
+    width: 100%;
+    height: 1rem;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid #8b6914;
+    border-radius: 0.5rem;
+    margin-top: var(--spacing-xs);
+    overflow: hidden;
+}
+
+#troops-assigned-bar-inner {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #4CAF50, #ffd700);
+    transition: width 0.2s ease;
+}
+
+.defender-panel {
+    justify-content: space-between;
+}
+
+.target-tile-visual {
+    position: relative;
+    width: 100%;
+    padding-top: 100%; /* 1:1 Aspect Ratio */
+    border-radius: 1rem;
+    overflow: hidden;
+    background-color: #1a0f08;
+}
+
+.target-tile-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    image-rendering: pixelated;
+}
+
+.target-tile-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: var(--spacing-sm);
+    background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+    color: white;
+    text-align: center;
+}
+
+.target-tile-overlay h5 {
+    color: #ffd700;
+    border: none;
+    margin: 0;
+}
+
+.target-tile-overlay p {
+    margin: 0;
+    color: #e8d5b7;
+}
+
+.intel-report {
+    background: rgba(0,0,0,0.2);
+    padding: var(--spacing-sm);
+    border-radius: 0.8rem;
+}
+
+.intel-report p {
+    margin: var(--spacing-xs) 0;
+}
+
+.intel-report strong {
+    color: #ffd700;
+}
+
+.attack-warning {
+    background: rgba(244,67,54,0.1);
+    border: 1px solid #f44336;
+    padding: var(--spacing-sm);
+    border-radius: 0.8rem;
+    color: #ffcdd2;
+}
+
+.attack-warning h4 {
+    color: #f44336;
+}
+
+.launch-attack-btn {
+    width: 100%;
+    padding: var(--spacing-md);
+    font-size: clamp(1.4rem, 2vw, 1.6rem);
+    background: linear-gradient(135deg, #f44336, #b71c1c);
+    border-color: #ef5350;
+}
+
+.launch-attack-btn:hover {
+    background: linear-gradient(135deg, #ef5350, #d32f2f);
+}
+
+/* NEW: Enable marker clicks */
+.army-marker, .caravan-marker {
+    pointer-events: auto; /* Allow clicking on markers */
+    cursor: pointer;      /* Show clickable cursor */
+}
+
+.army-marker {
+    background-image: url('milicia1.png');
+}
+
+.caravan-marker {
+
+    background-image: url('caravan.png');
+}
+
+@media (max-width: 900px) {
+    .attack-planning-v2 {
+        grid-template-columns: 1fr;
+        max-height: 85vh;
+    }
+}

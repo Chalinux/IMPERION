@@ -1,0 +1,66 @@
+/* Map specific layout */
+#mapView.active {
+    display: grid; /* Use grid for map and sidebar */
+    grid-template-columns: 1fr clamp(20rem, 25vw, 28rem); /* Responsive sidebar width */
+    grid-template-areas: "map-area sidebar-area";
+}
+
+#gameMap {
+    grid-area: map-area;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(45deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+#mapContainer {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#mapCanvas {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: optimize-contrast;
+    image-rendering: -webkit-optimize-contrast;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+
+#mapCanvas:active {
+    cursor: grabbing;
+}
+
+#mapControls {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    z-index: 10; /* Ensure controls are on top of the canvas */
+}
+
+.map-control {
+    width: calc(var(--button-height) * 1.2); /* Scale relative to button height */
+    height: calc(var(--button-height) * 1.2);
+    background: rgba(0,0,0,0.7);
+    border: 0.2rem solid #8b6914;
+    color: #ffd700;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: clamp(1.4rem, 2vw, 1.6rem); /* Responsive font size */
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex; /* Added to center content (emoji) */
+    align-items: center; /* Added to center content (emoji) */
+    justify-content: center; /* Added to center content (emoji) */
+}
+
+.map-control:hover {
+    background: rgba(139,105,20,0.8);
+    transform: scale(1.1);
+}
