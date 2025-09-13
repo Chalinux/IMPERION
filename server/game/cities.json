@@ -1,0 +1,75 @@
+{
+  "cities": [
+    [
+      "ciudad_1757735851228_asdfags",
+      {
+        "id": "ciudad_1757735851228_asdfags",
+        "type": "ciudad",
+        "position": {
+          "x": 20,
+          "y": 4
+        },
+        "owner": "player_1757735851210_7junkix2d",
+        "level": 1,
+        "createdAt": 1757735851228
+      }
+    ],
+    [
+      "ciudad_1757735912487_lao",
+      {
+        "id": "ciudad_1757735912487_lao",
+        "type": "ciudad",
+        "position": {
+          "x": 15,
+          "y": 40
+        },
+        "owner": "player_1757735912484_6hpqb3xbs",
+        "level": 1,
+        "createdAt": 1757735912487
+      }
+    ],
+    [
+      "ciudad_1757737509577_asdfagsaass",
+      {
+        "id": "ciudad_1757737509577_asdfagsaass",
+        "type": "ciudad",
+        "position": {
+          "x": 8,
+          "y": 14
+        },
+        "owner": "player_1757737509574",
+        "level": 1,
+        "createdAt": 1757737509577
+      }
+    ],
+    [
+      "ciudad_1757737547620_laosa",
+      {
+        "id": "ciudad_1757737547620_laosa",
+        "type": "ciudad",
+        "position": {
+          "x": 46,
+          "y": 30
+        },
+        "owner": "player_1757737547525",
+        "level": 1,
+        "createdAt": 1757737547620
+      }
+    ],
+    [
+      "ciudad_1757737557780_asdfagsaass",
+      {
+        "id": "ciudad_1757737557780_asdfagsaass",
+        "type": "ciudad",
+        "position": {
+          "x": 46,
+          "y": 19
+        },
+        "owner": "player_1757737557778",
+        "level": 1,
+        "createdAt": 1757737557780
+      }
+    ]
+  ],
+  "lastUpdate": 1757737557838
+}

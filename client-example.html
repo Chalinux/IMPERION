@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejemplo Cliente - Imperion Player Persistence</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Ejemplo Cliente - Persistencia de Jugadores</h1>
+
+    <div id="status" class="status info">Conectando...</div>
+
+    <div id="loginForm">
+        <h2>Conectar al Juego</h2>
+        <input type="text" id="playerName" placeholder="Nombre del jugador" value="TestPlayer">
+        <br>
+        <button onclick="connectAsPlayer()">Conectar como Jugador</button>
+        <button onclick="connectAsSpectator()">Conectar como Espectador</button>
+        <button onclick="disconnect()">Desconectar</button>
+    </div>
+
+    <div id="gameInfo" style="display: none;">
+        <h2>Información del Juego</h2>
+        <p><strong>Player ID:</strong> <span id="currentPlayerId">N/A</span></p>
+        <p><strong>Estado:</strong> <span id="connectionStatus">Desconectado</span></p>
+        <p><strong>Es espectador:</strong> <span id="isSpectator">No</span></p>
+    </div>
+
+    <script>
+        let socket;
+        let playerId = null;
+
+        // Cargar playerId desde localStorage al iniciar
+        function loadPlayerId() {
+            playerId = localStorage.getItem('imperion_playerId');
+            if (playerId) {
+                document.getElementById('status').innerHTML = `Player ID cargado desde localStorage: ${playerId}`;
+                document.getElementById('status').className = 'status success';
+            } else {
+                document.getElementById('status').innerHTML = 'No hay Player ID guardado. Se generará uno nuevo.';
+                document.getElementById('status').className = 'status info';
+            }
+        }
+
+        // Guardar playerId en localStorage
+        function savePlayerId(id) {
+            playerId = id;
+            localStorage.setItem('imperion_playerId', id);
+            document.getElementById('currentPlayerId').textContent = id;
+            document.getElementById('status').innerHTML = `Player ID guardado: ${id}`;
+            document.getElementById('status').className = 'status success';
+        }
+
+        // Conectar como jugador
+        function connectAsPlayer() {
+            const name = document.getElementById('playerName').value.trim();
+            if (!name) {
+                alert('Por favor ingresa un nombre');
+                return;
+            }
+
+            connectToServer(name, false);
+        }
+
+        // Conectar como espectador
+        function connectAsSpectator() {
+            connectToServer('Espectador', true);
+        }
+
+        // Conectar al servidor
+        function connectToServer(name, isSpectator = false) {
+            // Desconectar si ya hay una conexión
+            if (socket) {
+                socket.disconnect();
+            }
+
+            document.getElementById('status').innerHTML = 'Conectando al servidor...';
+            document.getElementById('status').className = 'status info';
+
+            // Conectar al servidor (ajusta la URL según tu configuración)
+            socket = io('http://localhost:3001', {
+                transports: ['websocket', 'polling']
+            });
+
+            // Manejar conexión exitosa
+            socket.on('connect', () => {
+                console.log('Conectado al servidor');
+                document.getElementById('connectionStatus').textContent = 'Conectado';
+                document.getElementById('status').innerHTML = 'Conectado al servidor. Enviando datos de join...';
+            });
+
+            // Manejar respuesta de join
+            socket.on('joinResponse', (data) => {
+                console.log('Respuesta de join:', data);
+                if (data.success) {
+                    // El servidor nos asignó un playerId, guardarlo
+                    if (data.playerId && data.playerId !== playerId) {
+                        savePlayerId(data.playerId);
+                    }
+
+                    document.getElementById('isSpectator').textContent = data.isSpectator ? 'Sí' : 'No';
+                    document.getElementById('gameInfo').style.display = 'block';
+                    document.getElementById('status').innerHTML = `¡Conectado exitosamente! ${data.isNewPlayer ? 'Nuevo jugador creado.' : 'Jugador existente cargado.'}`;
+                    document.getElementById('status').className = 'status success';
+                } else {
+                    document.getElementById('status').innerHTML = `Error al conectar: ${data.error || 'Error desconocido'}`;
+                    document.getElementById('status').className = 'status error';
+                }
+            });
+
+            // Manejar desconexión
+            socket.on('disconnect', () => {
+                console.log('Desconectado del servidor');
+                document.getElementById('connectionStatus').textContent = 'Desconectado';
+                document.getElementById('status').innerHTML = 'Desconectado del servidor';
+                document.getElementById('status').className = 'status error';
+            });
+
+            // Enviar solicitud de join
+            const joinData = {
+                playerId: playerId, // Enviar playerId existente o null
+                name: name,
+                spectator: isSpectator
+            };
+
+            console.log('Enviando join con datos:', joinData);
+            socket.emit('join', joinData);
+        }
+
+        // Desconectar
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+            document.getElementById('connectionStatus').textContent = 'Desconectado';
+            document.getElementById('gameInfo').style.display = 'none';
+            document.getElementById('status').innerHTML = 'Desconectado';
+            document.getElementById('status').className = 'status info';
+        }
+
+        // Limpiar localStorage (para testing)
+        function clearStorage() {
+            localStorage.removeItem('imperion_playerId');
+            playerId = null;
+            document.getElementById('currentPlayerId').textContent = 'N/A';
+            document.getElementById('status').innerHTML = 'Player ID eliminado de localStorage';
+            document.getElementById('status').className = 'status info';
+        }
+
+        // Cargar playerId al iniciar la página
+        window.onload = function() {
+            loadPlayerId();
+        };
+
+        // Agregar botón para limpiar storage
+        document.getElementById('loginForm').innerHTML += '<br><button onclick="clearStorage()">Limpiar Player ID</button>';
+    </script>
+</body>
+</html>

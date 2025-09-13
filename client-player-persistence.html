@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejemplo Cliente - Persistencia de Jugadores Imperion</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status { 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            border-left: 4px solid;
+        }
+        .success { 
+            background-color: #d4edda; 
+            color: #155724;
+            border-left-color: #28a745;
+        }
+        .info { 
+            background-color: #d1ecf1; 
+            color: #0c5460;
+            border-left-color: #17a2b8;
+        }
+        .error { 
+            background-color: #f8d7da; 
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left-color: #ffc107;
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        input { 
+            padding: 8px; 
+            margin: 5px; 
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .game-info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .game-info h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .info-item {
+            margin: 5px 0;
+        }
+        .info-item strong {
+            color: #007bff;
+        }
+        .connection-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .connected {
+            background-color: #28a745;
+            color: white;
+        }
+        .disconnected {
+            background-color: #dc3545;
+            color: white;
+        }
+        .log-section {
+            margin-top: 20px;
+        }
+        .log-section h3 {
+            color: #495057;
+        }
+        .log-container {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .log-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .log-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .log-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .log-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Ejemplo Cliente - Persistencia de Jugadores Imperion</h1>
+        
+        <div id="status" class="status info">
+            Conectando...
+            <span id="connectionStatus" class="connection-status disconnected">Desconectado</span>
+        </div>
+
+        <div id="loginForm">
+            <h2>🔗 Conectar al Juego</h2>
+            <div class="form-group">
+                <label for="playerName">Nombre del jugador:</label>
+                <input type="text" id="playerName" placeholder="Ingresa tu nombre" value="JugadorTest">
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="spectatorMode"> 
+                    Conectar como Espectador (no se creará jugador en players.json)
+                </label>
+            </div>
+            <div class="form-group">
+                <button onclick="connectToServer()" id="connectBtn">🚀 Conectar</button>
+                <button onclick="disconnect()" id="disconnectBtn" disabled>🔌 Desconectar</button>
+                <button onclick="clearPlayerId()" id="clearBtn">🗑️ Limpiar Player ID</button>
+            </div>
+        </div>
+
+        <div id="gameInfo" style="display: none;">
+            <div class="game-info">
+                <h3>📋 Información del Juego</h3>
+                <div class="info-item">
+                    <strong>Player ID:</strong> <span id="currentPlayerId">N/A</span>
+                </div>
+                <div class="info-item">
+                    <strong>Nombre:</strong> <span id="playerName">N/A</span>
+                </div>
+                <div class="info-item">
+                    <strong>Espectador:</strong> <span id="isSpectator">No</span>
+                </div>
+                <div class="info-item">
+                    <strong>Nuevo Jugador:</strong> <span id="isNewPlayer">N/A</span>
+                </div>
+                <div class="info-item">
+                    <strong>Última Actividad:</strong> <span id="lastActivity">N/A</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <button onclick="sendTestMessage()">💬 Enviar Mensaje de Prueba</button>
+                <button onclick="requestPlayerData()">📄 Solicitar Datos del Jugador</button>
+            </div>
+        </div>
+
+        <div class="log-section">
+            <h3>📝 Registro de Actividad</h3>
+            <div id="logContainer" class="log-container"></div>
+            <button onclick="clearLog()" style="margin-top: 10px;">Limpiar Registro</button>
+        </div>
+    </div>
+
+    <script>
+        let socket;
+        let playerId = null;
+        let playerName = null;
+        let isSpectator = false;
+
+        // Función para agregar entradas al registro
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Función para limpiar el registro
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = '';
+            addLog('Registro limpiado', 'info');
+        }
+
+        // Cargar playerId desde localStorage al iniciar
+        function loadPlayerId() {
+            playerId = localStorage.getItem('imperion_playerId');
+            if (playerId) {
+                addLog(`✅ Player ID cargado desde localStorage: ${playerId}`, 'success');
+                document.getElementById('status').innerHTML = `Player ID cargado desde localStorage: ${playerId}`;
+                document.getElementById('status').className = 'status success';
+            } else {
+                addLog('ℹ️ No hay Player ID guardado. Se generará uno nuevo.', 'info');
+                document.getElementById('status').innerHTML = 'No hay Player ID guardado. Se generará uno nuevo.';
+                document.getElementById('status').className = 'status info';
+            }
+        }
+
+        // Guardar playerId en localStorage
+        function savePlayerId(id) {
+            playerId = id;
+            localStorage.setItem('imperion_playerId', id);
+            document.getElementById('currentPlayerId').textContent = id;
+            addLog(`💾 Player ID guardado en localStorage: ${id}`, 'success');
+        }
+
+        // Limpiar playerId de localStorage
+        function clearPlayerId() {
+            localStorage.removeItem('imperion_playerId');
+            playerId = null;
+            document.getElementById('currentPlayerId').textContent = 'N/A';
+            addLog('🗑️ Player ID eliminado de localStorage', 'warning');
+            document.getElementById('status').innerHTML = 'Player ID eliminado de localStorage';
+            document.getElementById('status').className = 'status info';
+        }
+
+        // Conectar al servidor
+        function connectToServer() {
+            const name = document.getElementById('playerName').value.trim();
+            if (!name) {
+                alert('Por favor ingresa un nombre');
+                return;
+            }
+
+            isSpectator = document.getElementById('spectatorMode').checked;
+
+            // Desconectar si ya hay una conexión
+            if (socket) {
+                socket.disconnect();
+            }
+
+            // Actualizar UI
+            document.getElementById('connectBtn').disabled = true;
+            document.getElementById('disconnectBtn').disabled = false;
+            document.getElementById('status').innerHTML = 'Conectando al servidor...';
+            document.getElementById('status').className = 'status info';
+
+            addLog(`🔄 Iniciando conexión como ${isSpectator ? 'espectador' : 'jugador'}...`, 'info');
+
+            // Conectar al servidor (ajusta la URL según tu configuración)
+            socket = io('http://localhost:3001', {
+                transports: ['websocket', 'polling'],
+                timeout: 10000,
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000
+            });
+
+            // Manejar conexión exitosa
+            socket.on('connect', () => {
+                console.log('✅ Conectado al servidor');
+                addLog('✅ Conexión establecida con el servidor', 'success');
+                document.getElementById('connectionStatus').textContent = 'Conectado';
+                document.getElementById('connectionStatus').className = 'connection-status connected';
+                document.getElementById('status').innerHTML = 'Conectado al servidor. Enviando datos de join...';
+                
+                // Enviar solicitud de join
+                const joinData = {
+                    playerId: playerId, // Enviar playerId existente o null
+                    name: name,
+                    spectator: isSpectator
+                };
+
+                addLog(`📤 Enviando solicitud de join: ${JSON.stringify(joinData)}`, 'info');
+                socket.emit('join', joinData);
+            });
+
+            // Manejar respuesta de join
+            socket.on('joinResponse', (data) => {
+                console.log('📥 Respuesta de join:', data);
+                addLog(`📥 Respuesta de join: ${JSON.stringify(data)}`, 'info');
+                
+                if (data.success) {
+                    // El servidor nos asignó un playerId, guardarlo si es nuevo
+                    if (data.playerId && data.playerId !== playerId) {
+                        savePlayerId(data.playerId);
+                    }
+
+                    // Actualizar información del juego
+                    playerName = data.name || document.getElementById('playerName').value;
+                    document.getElementById('playerName').textContent = playerName;
+                    document.getElementById('isSpectator').textContent = data.isSpectator ? 'Sí' : 'No';
+                    document.getElementById('isNewPlayer').textContent = data.isNewPlayer ? 'Sí' : 'No';
+                    
+                    // Mostrar información de última actividad si está disponible
+                    if (data.lastActivityReadable) {
+                        document.getElementById('lastActivity').textContent = data.lastActivityReadable;
+                    }
+
+                    document.getElementById('gameInfo').style.display = 'block';
+                    document.getElementById('status').innerHTML = `✅ ¡Conectado exitosamente! ${data.isNewPlayer ? 'Nuevo jugador creado.' : 'Jugador existente cargado.'}`;
+                    document.getElementById('status').className = 'status success';
+                    
+                    addLog(`🎉 ${data.isNewPlayer ? 'Nuevo jugador creado' : 'Jugador existente cargado'}`, 'success');
+                } else {
+                    document.getElementById('status').innerHTML = `❌ Error al conectar: ${data.error || 'Error desconocido'}`;
+                    document.getElementById('status').className = 'status error';
+                    addLog(`❌ Error al conectar: ${data.error || 'Error desconocido'}`, 'error');
+                    
+                    // Rehabilitar botón de conexión
+                    document.getElementById('connectBtn').disabled = false;
+                    document.getElementById('disconnectBtn').disabled = true;
+                }
+            });
+
+            // Manejar evento assignPlayerId (cuando el servidor asigna un nuevo ID)
+            socket.on('assignPlayerId', (data) => {
+                console.log('📝 Asignación de playerId:', data);
+                addLog(`📝 Servidor asignó playerId: ${data.playerId} - ${data.message}`, 'info');
+                if (data.playerId && data.playerId !== playerId) {
+                    savePlayerId(data.playerId);
+                }
+            });
+
+            // Manejar desconexión
+            socket.on('disconnect', (reason) => {
+                console.log('🔌 Desconectado del servidor. Razón:', reason);
+                addLog(`🔌 Desconectado del servidor. Razón: ${reason}`, 'warning');
+                document.getElementById('connectionStatus').textContent = 'Desconectado';
+                document.getElementById('connectionStatus').className = 'connection-status disconnected';
+                document.getElementById('status').innerHTML = 'Desconectado del servidor';
+                document.getElementById('status').className = 'status info';
+                
+                // Rehabilitar botón de conexión
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+            });
+
+            // Manejar errores
+            socket.on('error', (error) => {
+                console.error('❌ Error de Socket.IO:', error);
+                addLog(`❌ Error de Socket.IO: ${error.message || error}`, 'error');
+                document.getElementById('status').innerHTML = `❌ Error: ${error.message || error}`;
+                document.getElementById('status').className = 'status error';
+                
+                // Rehabilitar botón de conexión
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+            });
+
+            // Manejar otros eventos útiles
+            socket.on('playerJoined', (data) => {
+                addLog(`👤 Jugador unido: ${data.name} (${data.playerId})`, 'info');
+            });
+
+            socket.on('playerLeft', (data) => {
+                addLog(`👤 Jugador salió: ${data.name} (${data.playerId})`, 'info');
+            });
+
+            socket.on('chatMessage', (data) => {
+                addLog(`💬 Chat [${data.from}]: ${data.text}`, 'info');
+            });
+
+            socket.on('serverMessage', (data) => {
+                addLog(`📢 Servidor: ${data.text}`, 'info');
+            });
+        }
+
+        // Desconectar
+        function disconnect() {
+            if (socket) {
+                addLog('🔌 Desconectando del servidor...', 'info');
+                socket.disconnect();
+                socket = null;
+            }
+            document.getElementById('connectionStatus').textContent = 'Desconectado';
+            document.getElementById('connectionStatus').className = 'connection-status disconnected';
+            document.getElementById('gameInfo').style.display = 'none';
+            document.getElementById('status').innerHTML = 'Desconectado';
+            document.getElementById('status').className = 'status info';
+            
+            // Rehabilitar botón de conexión
+            document.getElementById('connectBtn').disabled = false;
+            document.getElementById('disconnectBtn').disabled = true;
+        }
+
+        // Enviar mensaje de prueba
+        function sendTestMessage() {
+            if (socket && socket.connected) {
+                const testMessage = {
+                    from: 'Cliente de Prueba',
+                    text: 'Este es un mensaje de prueba desde el cliente',
+                    ts: Date.now(),
+                    type: 'test'
+                };
+                socket.emit('chatMessage', testMessage);
+                addLog('📤 Enviando mensaje de prueba...', 'info');
+            } else {
+                addLog('❌ No hay conexión activa para enviar mensaje', 'error');
+            }
+        }
+
+        // Solicitar datos del jugador
+        function requestPlayerData() {
+            if (socket && socket.connected && playerId) {
+                addLog('📄 Solicitando datos del jugador...', 'info');
+                // Este evento puede ser implementado en el servidor si es necesario
+                socket.emit('getPlayerData', { playerId: playerId });
+            } else {
+                addLog('❌ No hay conexión activa o playerId disponible', 'error');
+            }
+        }
+
+        // Cargar playerId al iniciar la página
+        window.onload = function() {
+            addLog('🚀 Iniciando cliente de persistencia de jugadores...', 'info');
+            loadPlayerId();
+        };
+
+        // Manejo de errores no capturados
+        window.addEventListener('error', function(event) {
+            addLog(`❌ Error no capturado: ${event.error.message}`, 'error');
+        });
+
+        // Manejo de errores de promesa no capturados
+        window.addEventListener('unhandledrejection', function(event) {
+            addLog(`❌ Error de promesa no capturado: ${event.reason}`, 'error');
+        });
+    </script>
+</body>
+</html>

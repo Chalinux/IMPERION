@@ -95,12 +95,18 @@ export class MapInteractionManager {
     }
     
     handleMouseDown(e) {
-        // Only allow dragging if the map view is active AND admin mode is NOT active
+        // Only allow dragging if the map view is active AND admin mode is NOT active AND player has selected name
         if (this.game.currentView !== 'map' || this.game.isAdminMode) return;
 
+        // Prevent interaction if player hasn't selected a name yet
+        if (!this.game.welcomeManager?.playerNameSelected) {
+            console.log('Player must select a name before interacting with the map');
+            return;
+        }
+
         this.isDragging = true;
-        this.dragStart = { 
-            x: e.clientX, 
+        this.dragStart = {
+            x: e.clientX,
             y: e.clientY,
             initialOffsetX: this.game.mapRenderer.getOffsetX(),
             initialOffsetY: this.game.mapRenderer.getOffsetY()

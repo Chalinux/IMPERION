@@ -1,13 +1,15 @@
 const StateManager = require('./StateManager');
 const ChatManager = require('./ChatManager');
 const SpectatorManager = require('./SpectatorManager');
+const PlayerPersistenceManager = require('./PlayerPersistenceManager');
 
 class DevGameServer {
-    constructor(io, stateManager, chatManager, spectatorManager) {
+    constructor(io, stateManager, chatManager, spectatorManager, playerPersistenceManager) {
         this.io = io;
         this.stateManager = stateManager;
         this.chatManager = chatManager;
         this.spectatorManager = spectatorManager;
+        this.playerPersistenceManager = playerPersistenceManager;
         
         // Single global room ID for development
         this.globalRoomId = 'dev_global';
@@ -113,50 +115,100 @@ class DevGameServer {
         socket.on('getGlobalState', () => {
             this.handleGetGlobalState(socket);
         });
+
+        // Manejar verificación de unicidad de nombre
+        socket.on('checkNameUniqueness', (data) => {
+            this.handleCheckNameUniqueness(socket, data);
+        });
+
+        // Manejar establecimiento de nombre de jugador
+        socket.on('setPlayerName', (data) => {
+            this.handleSetPlayerName(socket, data);
+        });
     }
     
     async handleJoin(socket, data) {
-        const { playerId, name, preferredPosition } = data;
-        
-        // console.log(`👤 Jugador ${name} (${playerId}) intentando unirse al servidor global`);
-        // console.log(`📍 Posición preferida:`, preferredPosition);
-        
+        const { playerId, name, preferredPosition, spectator } = data;
+
+        // Verificar si es modo espectador
+        if (spectator || data.join_game === false) {
+            console.log(`👁️ Cliente ${socket.id} conectándose como espectador`);
+            return this.handleJoinSpectator(socket, data);
+        }
+
         // Verificar si hay espacio disponible (límite global)
         const globalState = this.stateManager.getRoomState(this.globalRoomId);
         if (globalState.players.size >= 50) {
             throw new Error('Servidor lleno (máximo 50 jugadores)');
         }
-        
+
+        let finalPlayerId = playerId;
+        let existingPlayer = null;
+        let isNewPlayer = false;
+
+        // Si no se envía playerId, generar uno nuevo
+        if (!playerId || playerId === 'undefined' || playerId === '') {
+            finalPlayerId = this.playerPersistenceManager.generatePlayerId();
+            isNewPlayer = true;
+            console.log(`🆕 Nuevo jugador sin ID: ${name} -> ID generado: ${finalPlayerId}`);
+        } else {
+            // Verificar si el playerId existe en players.json
+            if (this.playerPersistenceManager.hasPlayer(playerId)) {
+                // Jugador existente - cargar su estado
+                existingPlayer = this.playerPersistenceManager.getPlayer(playerId);
+                finalPlayerId = playerId;
+                console.log(`🔄 Jugador existente reconectado: ${existingPlayer.name} (${playerId})`);
+            } else {
+                // Jugador nuevo con ID proporcionado
+                finalPlayerId = playerId;
+                isNewPlayer = true;
+                console.log(`🆕 Nuevo jugador con ID: ${name} (${playerId})`);
+            }
+        }
+
         // Limpiar imperios huérfanos antes de procesar el nuevo join
         this.stateManager.cleanOrphanedEmpires();
-        
-        // Agregar jugador usando la lógica del StateManager (manejará imperio existente o nuevo)
-        this.stateManager.addPlayer(this.globalRoomId, {
-            id: playerId,
+
+        // Preparar datos del jugador
+        const playerData = existingPlayer ? {
+            ...existingPlayer,
+            lastActivity: Date.now()
+        } : {
+            id: finalPlayerId,
             name: name,
-            isAdmin: this.isAdminPlayer(name, playerId),
             type: 'player',
+            isAdmin: this.isAdminPlayer(name, finalPlayerId),
             isNPC: false,
-            position: preferredPosition  // Pasar posición preferida; StateManager validará y manejará creación de imperio
-        });
-        
+            position: preferredPosition || this.stateManager.generateValidSpawnPosition(),
+            color: this.generateRandomColor(),
+            joinedAt: Date.now(),
+            joinedAtReadable: new Date().toLocaleString('es-AR'),
+            lastActivity: Date.now(),
+            lastActivityReadable: new Date().toLocaleString('es-AR')
+        };
+
+        // Agregar o actualizar en persistencia
+        this.playerPersistenceManager.addOrUpdatePlayer(playerData);
+        await this.playerPersistenceManager.savePlayers();
+
+        // Agregar jugador al estado del juego
+        this.stateManager.addPlayer(this.globalRoomId, playerData);
+
+        // Actualizar el playerId en el socket para futuras comunicaciones
+        socket.playerId = finalPlayerId;
+
         // Si no hay datos de mapa, generarlos ahora
         if (!this.stateManager.getMapData()) {
             this.stateManager.generateAndSaveMapData();
         }
-        
+
         // Obtener el jugador agregado para detalles
-        const addedPlayer = globalState.players.get(playerId);
-        const spawnPosition = addedPlayer ? addedPlayer.position : preferredPosition || { x: 0, y: 0 };
+        const addedPlayer = globalState.players.get(finalPlayerId);
+        const spawnPosition = addedPlayer ? addedPlayer.position : playerData.position;
         const hasEmpire = true;  // Siempre tiene imperio después de addPlayer
-        
-        // console.log(`👤 Jugador ${name} (${playerId}) agregado en (${spawnPosition.x}, ${spawnPosition.y}) con imperio`);
-        
-        // DEBUG: Log player count after adding
-        const stateAfterAdd = this.stateManager.getRoomState(this.globalRoomId);
-        // console.log(`[DEBUG] Players after adding ${name}: ${stateAfterAdd.players.size}`);
-        
+
         // Update global state for admin panel
+        const stateAfterAdd = this.stateManager.getRoomState(this.globalRoomId);
         this.io.emit('globalState', {
             players: stateAfterAdd.players.size,
             entities: stateAfterAdd.entities.size,
@@ -164,27 +216,39 @@ class DevGameServer {
             sequence: this.stateManager.getCurrentSequence(),
             timestamp: Date.now()
         });
-        
+
         // Enviar snapshot inicial del servidor global
         const snapshot = this.stateManager.getRoomSnapshot(this.globalRoomId);
-        
+
         // Notificar a todos los clientes (incluyendo admin panel)
         this.io.emit('playerJoined', {
-            playerId,
-            name,
-            isAdmin: this.isAdminPlayer(name, playerId),
+            playerId: finalPlayerId,
+            name: playerData.name,
+            isAdmin: playerData.isAdmin,
             position: spawnPosition,
             hasEmpire: hasEmpire,
-            roomId: this.globalRoomId
+            roomId: this.globalRoomId,
+            joinedAtReadable: playerData.joinedAtReadable,
+            lastActivityReadable: playerData.lastActivityReadable,
+            isNewPlayer: isNewPlayer
         });
-        
+
+        // Si es un nuevo jugador, enviar el playerId al cliente para que lo guarde
+        if (isNewPlayer) {
+            socket.emit('assignPlayerId', {
+                playerId: finalPlayerId,
+                message: 'Guarda este ID para futuras conexiones'
+            });
+        }
+
         return {
             success: true,
             roomId: this.globalRoomId,
-            playerId,
-            isAdmin: this.isAdminPlayer(name, playerId),
+            playerId: finalPlayerId,
+            isAdmin: playerData.isAdmin,
             hasEmpire: hasEmpire,
-            snapshot
+            snapshot,
+            isNewPlayer: isNewPlayer
         };
     }
     
@@ -203,6 +267,15 @@ class DevGameServer {
         return this.stateManager.generateValidSpawnPosition();
     }
     
+    // Método para generar color aleatorio para nuevos jugadores
+    generateRandomColor() {
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+            '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
     // Método para generar posición determinística basada en name (estable)
     generateDeterministicPosition(name) {
         // Generate a consistent position based on player name to ensure
@@ -255,7 +328,6 @@ class DevGameServer {
                     if (tile.type === 'ciudad' && tile.owner) {
                         // Si el propietario no está en la lista de jugadores activos, limpiar la ciudad
                         if (!activePlayerNames.has(tile.owner)) {
-                            console.log(`🧹 Limpiando imperio huérfano en (${x}, ${y}) perteneciente a ${tile.owner}`);
                             
                             // Convertir de vuelta a terreno neutral (llanura)
                             mapData[y][x] = {
@@ -278,7 +350,6 @@ class DevGameServer {
             let entityCleanedCount = 0;
             for (const [entityId, entity] of state.entities.entries()) {
                 if (entity.type === 'ciudad' && !activePlayerNames.has(entity.owner)) {
-                    console.log(`🗑️ Eliminando entidad de imperio huérfano: ${entityId} de ${entity.owner}`);
                     state.entities.delete(entityId);
                     entityCleanedCount++;
                 }
@@ -287,9 +358,6 @@ class DevGameServer {
             if (cleanedCount > 0 || entityCleanedCount > 0) {
                 this.stateManager.syncEntitiesToMap();
                 this.stateManager.savePersistentState();
-                console.log(`🧹 ${cleanedCount} tiles y ${entityCleanedCount} entidades huérfanas limpiadas`);
-            } else {
-                console.log(`✅ No se encontraron imperios huérfanos`);
             }
         } catch (error) {
             console.error('❌ Error limpiando imperios huérfanos:', error);
@@ -298,30 +366,33 @@ class DevGameServer {
     
     async handleJoinSpectator(socket, data) {
         const { playerId } = data;
-        
-        // console.log(`👁️ Espectador ${playerId} intentando unirse al servidor global`);
-        
-        // Agregar espectador
-        const spectator = {
-            id: playerId,
-            socket: socket,
-            joinedAt: Date.now()
-        };
-        
+
+        // Generar ID único para espectador si no se proporciona
+        let finalPlayerId = playerId;
+        if (!playerId || playerId === 'undefined' || playerId === '') {
+            finalPlayerId = `spectator_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        console.log(`👁️ Espectador conectado: ${finalPlayerId}`);
+
+        // Agregar espectador al SpectatorManager
+        this.spectatorManager.addSpectator(finalPlayerId, socket);
+
         socket.join(this.globalRoomId);
         socket.currentRoom = this.globalRoomId;
-        socket.playerId = playerId;
+        socket.playerId = finalPlayerId;
         socket.isSpectator = true;
-        
-        // console.log(`✅ Espectador ${playerId} unido al servidor global`);
-        
+
         // Enviar snapshot inicial
         const snapshot = this.stateManager.getRoomSnapshot(this.globalRoomId);
-        
+
+        // No crear ni modificar players.json para espectadores
+        console.log(`👁️ Espectador ${finalPlayerId} - no se modifica players.json`);
+
         return {
             success: true,
             roomId: this.globalRoomId,
-            playerId,
+            playerId: finalPlayerId,
             isSpectator: true,
             snapshot
         };
@@ -389,46 +460,28 @@ class DevGameServer {
         try {
             const { x, y } = payload;
             
-            // Validar la posición
-            if (typeof x !== 'number' || typeof y !== 'number') {
-                console.warn(`⚠️ Posición inválida recibida de ${playerId}:`, payload);
-                return;
-            }
-            
             // Obtener el estado global
             const globalState = this.stateManager.getRoomState(this.globalRoomId);
             const player = globalState.players.get(playerId);
             
             if (!player) {
-                console.warn(`⚠️ Jugador no encontrado: ${playerId}`);
                 return;
             }
             
-            // Actualizar la posición del jugador
-            const oldPosition = { ...player.position };
-            player.position = { x, y };
-            player.lastPosition = { x, y }; // Guardar última posición para persistencia
-            player.lastActivity = Date.now();
-            
-            // console.log(`🏃 Jugador ${player.name} se movió: (${oldPosition.x}, ${oldPosition.y}) → (${x}, ${y})`);
-            
-            // Guardar posición para persistencia en el servidor (última posición conocida)
-            this.stateManager.savePlayerPosition(player.name, { x, y });
-            
-            // Notificar a todos los jugadores sobre el movimiento
-            this.io.to(this.globalRoomId).emit('playerMoved', {
-                playerId: playerId,
-                playerName: player.name,
-                from: oldPosition,
-                to: { x, y },
+            // En un juego 4x, los imperios son estáticos, no se mueven
+            // Notificar al jugador que el movimiento no está permitido
+            socket.emit('moveResponse', {
+                success: false,
+                message: 'Los imperios son estáticos en este juego 4x, no se pueden mover',
+                position: player.position, // Mantener posición actual
                 timestamp: Date.now()
             });
             
-            // Notificar al jugador que su posición fue guardada
-            socket.emit('positionSaved', {
+            // Usar la posición actual del jugador
+            socket.emit('imperialPosition', {
                 success: true,
-                position: { x, y },
-                persistent: true,
+                position: player.position,
+                message: 'Usando posición actual',
                 timestamp: Date.now()
             });
             
@@ -442,44 +495,26 @@ class DevGameServer {
         try {
             const { x, y, persistent = false } = payload;
             
-            // Validar la posición
-            if (typeof x !== 'number' || typeof y !== 'number') {
-                console.warn(`⚠️ Posición inválida recibida para guardar de ${playerId}:`, payload);
-                return;
-            }
-            
             // Obtener el estado global
             const globalState = this.stateManager.getRoomState(this.globalRoomId);
             const player = globalState.players.get(playerId);
             
             if (!player) {
-                console.warn(`⚠️ Jugador no encontrado para guardar posición: ${playerId}`);
                 return;
             }
             
-            // Actualizar la posición del jugador
-            player.position = { x, y };
-            player.lastPosition = { x, y };
-            player.lastActivity = Date.now();
+            // En un juego 4x, los imperios son estáticos, no se pueden guardar nuevas posiciones
             
-            // Si es una posición persistente, guardarla en el estado persistente
-            if (persistent) {
-                this.stateManager.savePlayerPosition(player.name, { x, y });
-                // console.log(`💾 Posición persistente guardada para ${player.name}: (${x}, ${y})`);
-            } else {
-                // console.log(`💾 Posición temporal guardada para ${player.name}: (${x}, ${y})`);
-            }
-            
-            // Notificar al jugador que su posición fue guardada
+            // Notificar al jugador que no se pueden guardar nuevas posiciones
             socket.emit('positionSaved', {
-                success: true,
-                position: { x, y },
-                persistent: persistent,
+                success: false,
+                message: 'Los imperios son estáticos en este juego 4x, no se pueden cambiar de posición',
+                position: player.position,
+                persistent: false,
                 timestamp: Date.now()
             });
             
         } catch (error) {
-            console.error(`❌ Error al guardar posición para ${playerId}:`, error);
             socket.emit('positionSaved', {
                 success: false,
                 error: error.message,
@@ -502,7 +537,6 @@ class DevGameServer {
             });
             
         } catch (error) {
-            console.error(`❌ Error handling map data request for ${playerId}:`, error);
             socket.emit('mapData', {
                 success: false,
                 error: error.message,
@@ -533,7 +567,6 @@ class DevGameServer {
             });
             
         } catch (error) {
-            console.error(`❌ Error handling get saved position request for ${playerId}:`, error);
             socket.emit('savedPosition', {
                 success: false,
                 error: error.message,
@@ -583,7 +616,6 @@ class DevGameServer {
         
         const { action, target, message, adminId, ts } = data;
         
-        // console.log(`👑 Comando de admin: ${action} por ${adminId}`);
         
         switch (action) {
             case 'kick':
@@ -596,7 +628,6 @@ class DevGameServer {
                 this.listPlayers(socket);
                 break;
             default:
-                console.warn(`⚠️ Comando de admin desconocido: ${action}`);
         }
     }
     
@@ -604,7 +635,6 @@ class DevGameServer {
     handleAdminPanelCommand(socket, data) {
         const { action, playerName, playerType, position, target, message, adminId, ts, roomId } = data;
 
-        // console.log(`👑 Comando de admin panel: ${action} por ${adminId}`);
 
         // Enviar respuesta inicial de procesamiento
         socket.emit('adminPanelResponse', {
@@ -657,7 +687,6 @@ class DevGameServer {
                     
                     this.handleAddNPC(npcData, adminId);
                 } catch (error) {
-                    console.error('❌ Error al procesar datos de NPC:', error);
                     socket.emit('adminPanelResponse', {
                         success: false,
                         message: `Error al procesar datos de NPC: ${error.message}`,
@@ -702,14 +731,12 @@ class DevGameServer {
         const globalState = this.stateManager.getRoomState(this.globalRoomId);
         
         for (const [playerId, player] of globalState.players) {
-            // console.log(`👑 Expulsando a ${player.name} del servidor global`);
             player.socket.emit('kicked', { reason: 'Expulsado por admin' });
             player.socket.leave(this.globalRoomId);
             globalState.players.delete(player.id);
             kickedCount++;
         }
         
-        // console.log(`👑 ${kickedCount} jugadores expulsados`);
         
         // Notificar a todos los clientes que los jugadores fueron expulsados
         this.io.emit('serverMessage', {
@@ -721,11 +748,9 @@ class DevGameServer {
     
     globalBroadcast(message) {
         if (!message || message.trim() === '') {
-            console.warn('⚠️ Intento de broadcast con mensaje vacío');
             return;
         }
         
-        // console.log(`📢 Broadcast global: ${message}`);
         
         const broadcastMessage = {
             from: '👑 Admin',
@@ -740,7 +765,6 @@ class DevGameServer {
         // También guardar en el chat global
         this.chatManager.addToGlobalChat(broadcastMessage);
         
-        // console.log(`📢 Broadcast enviado a ${this.io.sockets.sockets.size} clientes`);
     }
     
     sendServerStats(socket) {
@@ -780,7 +804,6 @@ class DevGameServer {
         }
         
         if (targetPlayer) {
-            // console.log(`👑 Expulsando a ${targetName} del servidor global`);
             targetPlayer.socket.emit('kicked', { reason: 'Expulsado por admin' });
             targetPlayer.socket.leave(this.globalRoomId);
             globalState.players.delete(targetPlayer.id);
@@ -794,7 +817,6 @@ class DevGameServer {
     }
     
     broadcastMessage(message) {
-        // console.log(`📢 Broadcast en servidor global: ${message}`);
         
         this.io.to(this.globalRoomId).emit('chatMessage', {
             from: '👑 Admin',
@@ -834,29 +856,41 @@ class DevGameServer {
     }
     
     handleDisconnect(socket) {
-        // console.log(`🔌 Cliente desconectado: ${socket.id}`);
-        
+
         if (socket.currentRoom) {
             const globalState = this.stateManager.getRoomState(this.globalRoomId);
             if (globalState) {
                 // Remover jugador o espectador
                 if (socket.isSpectator) {
-                    // Los espectadores no se almacenan en el estado del juego
+                    // Remover espectador del SpectatorManager
+                    this.spectatorManager.removeSpectator(socket.playerId);
                     socket.leave(this.globalRoomId);
                 } else {
+                    // Obtener datos del jugador antes de eliminarlo
+                    const player = globalState.players.get(socket.playerId);
+                    if (player) {
+                        // Actualizar datos persistentes antes de desconectar
+                        this.playerPersistenceManager.addOrUpdatePlayer({
+                            ...player,
+                            lastActivity: Date.now(),
+                            lastActivityReadable: new Date().toLocaleString('es-AR')
+                        });
+                        // Guardar cambios de forma asíncrona
+                        this.playerPersistenceManager.savePlayers().catch(error => {
+                            console.error('❌ Error al guardar datos del jugador al desconectar:', error);
+                        });
+                    }
+
                     // Eliminar jugador del estado global
                     this.stateManager.removePlayer(this.globalRoomId, socket.playerId);
-                    
+
                     // Notificar a todos los clientes (incluyendo admin panel)
                     this.io.emit('playerLeft', {
                         playerId: socket.playerId,
-                        name: socket.room?.players?.get(socket.playerId)?.name || socket.playerId,
+                        name: player?.name || socket.playerId,
                         roomId: this.globalRoomId
                     });
-                    
-                    // DEBUG: Log player count after removal
-                    // console.log(`[DEBUG] Players after disconnect: ${globalState.players.size}`);
-                    
+
                     // Update global state for admin panel
                     this.io.emit('globalState', {
                         players: globalState.players.size,
@@ -890,7 +924,6 @@ class DevGameServer {
                 isNPC: false
             });
             
-            // console.log(`👤 Jugador ${playerName} (${playerType}) spawn en (${spawnPosition.x}, ${spawnPosition.y})`);
             
             // Notificar a todos los clientes (incluyendo admin panel)
             this.io.emit('playerJoined', {
@@ -911,7 +944,6 @@ class DevGameServer {
                 ts: Date.now()
             });
             
-            // console.log(`✅ Jugador ${playerName} (${playerType}) agregado al servidor global`);
             
         } catch (error) {
             console.error(`❌ Error al agregar jugador: ${error.message}`);
@@ -960,7 +992,6 @@ class DevGameServer {
                 ts: Date.now()
             });
             
-            // console.log(`🗑️ Jugador ${playerName} eliminado del servidor global`);
             
         } catch (error) {
             console.error(`❌ Error al eliminar jugador: ${error.message}`);
@@ -1017,23 +1048,19 @@ class DevGameServer {
                 throw new Error(`Ya existe un jugador o NPC con el nombre "${npcName}"`);
             }
             
-            console.log(`🎮 Iniciando creación de NPC: ${npcName} (tipo: ${npcType})`);
             
             // Generar ID único para el NPC
             const npcId = `npc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             
             // Siempre generar spawn aleatorio para NPCs
-            console.log(`🎲 Buscando posición de spawn para NPC ${npcName}...`);
             const spawnPosition = this.stateManager.generateValidSpawnPosition(npcId);
             
             if (!spawnPosition) {
                 throw new Error('No se pudo encontrar una posición válida de spawn para el NPC');
             }
             
-            console.log(`✅ Posición de encontrada para NPC ${npcName}: (${spawnPosition.x}, ${spawnPosition.y})`);
             
             // Agregar NPC al estado del juego
-            console.log(`📝 Agregando NPC ${npcName} al estado del juego...`);
             this.stateManager.addPlayer(this.globalRoomId, {
                 id: npcId,
                 name: npcName,
@@ -1051,10 +1078,8 @@ class DevGameServer {
                 throw new Error('Error al agregar NPC al estado del juego - NPC no encontrado después de la agregación');
             }
             
-            console.log(`👺 NPC ${npcName} (${npcType}) agregado exitosamente en (${spawnPosition.x}, ${spawnPosition.y})`);
             
             // Notificar a todos los clientes (incluyendo admin panel)
-            console.log(`📡 Notificando a todos los clientes sobre el nuevo NPC...`);
             this.io.emit('playerJoined', {
                 playerId: npcId,
                 name: npcName,
@@ -1066,7 +1091,6 @@ class DevGameServer {
             });
             
             // Enviar respuesta exitosa con la posición real asignada
-            console.log(`📤 Enviando respuesta exitosa al panel de admin...`);
             this.io.emit('adminPanelResponse', {
                 success: true,
                 message: `NPC ${npcName} agregado exitosamente en posición (${spawnPosition.x}, ${spawnPosition.y})`,
@@ -1081,7 +1105,6 @@ class DevGameServer {
                 }
             });
             
-            console.log(`✅ NPC ${npcName} (${npcType}) agregado completamente al servidor global`);
             
         } catch (error) {
             console.error(`❌ Error al agregar NPC: ${error.message}`);
@@ -1133,7 +1156,6 @@ class DevGameServer {
                 ts: Date.now()
             });
             
-            // console.log(`🗑️ NPC ${npcName} eliminado del servidor global`);
             
         } catch (error) {
             console.error(`❌ Error al eliminar NPC: ${error.message}`);
@@ -1209,6 +1231,98 @@ class DevGameServer {
             socket.emit('error', { message: `Error al obtener estado global: ${error.message}` });
         }
     }
+
+    // Handle name uniqueness check
+    handleCheckNameUniqueness(socket, data) {
+        try {
+            const { name, playerId } = data;
+
+            if (!name || name.trim() === '') {
+                socket.emit('nameUniquenessResult', { unique: false, error: 'Nombre vacío' });
+                return;
+            }
+
+            const globalState = this.stateManager.getRoomState(this.globalRoomId);
+            let isUnique = true;
+
+            // Check against all existing players
+            for (const [id, player] of globalState.players.entries()) {
+                if (player.name && player.name.toLowerCase() === name.toLowerCase() && id !== playerId) {
+                    isUnique = false;
+                    break;
+                }
+            }
+
+            socket.emit('nameUniquenessResult', { unique: isUnique });
+            console.log(`🔍 Verificación de unicidad para "${name}": ${isUnique ? 'único' : 'duplicado'}`);
+
+        } catch (error) {
+            console.error(`❌ Error al verificar unicidad de nombre: ${error.message}`);
+            socket.emit('nameUniquenessResult', { unique: false, error: error.message });
+        }
+    }
+
+    // Handle player name setting
+    handleSetPlayerName(socket, data) {
+        try {
+            const { name, playerId } = data;
+
+            if (!name || name.trim() === '') {
+                socket.emit('setPlayerNameResult', { success: false, error: 'Nombre vacío' });
+                return;
+            }
+
+            if (!playerId || socket.playerId !== playerId) {
+                socket.emit('setPlayerNameResult', { success: false, error: 'ID de jugador inválido' });
+                return;
+            }
+
+            const globalState = this.stateManager.getRoomState(this.globalRoomId);
+            const player = globalState.players.get(playerId);
+
+            if (!player) {
+                socket.emit('setPlayerNameResult', { success: false, error: 'Jugador no encontrado' });
+                return;
+            }
+
+            // Check uniqueness again (in case of race condition)
+            let isUnique = true;
+            for (const [id, p] of globalState.players.entries()) {
+                if (p.name && p.name.toLowerCase() === name.toLowerCase() && id !== playerId) {
+                    isUnique = false;
+                    break;
+                }
+            }
+
+            if (!isUnique) {
+                socket.emit('setPlayerNameResult', { success: false, error: 'Nombre ya en uso' });
+                return;
+            }
+
+            // Update player name
+            const oldName = player.name;
+            player.name = name.trim();
+            player.lastActivity = Date.now();
+
+            // Save to persistent storage
+            this.stateManager.savePersistentState();
+
+            // Notify all clients about the name change
+            this.io.emit('playerNameChanged', {
+                playerId: playerId,
+                oldName: oldName,
+                newName: player.name,
+                timestamp: Date.now()
+            });
+
+            socket.emit('setPlayerNameResult', { success: true, name: player.name });
+            console.log(`✅ Nombre de jugador ${playerId} cambiado de "${oldName}" a "${player.name}"`);
+
+        } catch (error) {
+            console.error(`❌ Error al establecer nombre de jugador: ${error.message}`);
+            socket.emit('setPlayerNameResult', { success: false, error: error.message });
+        }
+    }
     
     // Métodos para manejar edición de jugadores
     handleGetPlayerData(socket, playerId, adminId) {
@@ -1223,7 +1337,6 @@ class DevGameServer {
                     adminId: adminId,
                     ts: Date.now()
                 });
-                // console.log(`📄 Datos del jugador ${player.name} enviados para edición`);
             } else {
                 socket.emit('playerData', {
                     success: false,
@@ -1231,7 +1344,6 @@ class DevGameServer {
                     adminId: adminId,
                     ts: Date.now()
                 });
-                // console.warn(`⚠️ Jugador no encontrado para edición: ${playerId}`);
             }
         } catch (error) {
             console.error(`❌ Error al obtener datos del jugador: ${error.message}`);
@@ -1286,9 +1398,6 @@ class DevGameServer {
             // Actualizar última actividad
             player.lastActivity = Date.now();
             
-            // console.log(`✅ Jugador editado: ${oldData.name} → ${player.name}`);
-            // console.log(`📍 Posición: (${oldData.position.x}, ${oldData.position.y}) → (${player.position.x}, ${player.position.y})`);
-            // console.log(`🏷️ Tipo: ${oldData.type} → ${player.type}`);
             
             // Notificar a todos los clientes del panel que el jugador fue actualizado
             this.io.emit('playerUpdated', {
@@ -1309,7 +1418,6 @@ class DevGameServer {
                 ts: Date.now()
             });
             
-            // console.log(`👑 Admin ${adminId} actualizó al jugador ${player.name}`);
             
         } catch (error) {
             console.error(`❌ Error al editar jugador: ${error.message}`);
@@ -1324,4 +1432,4 @@ class DevGameServer {
     }
 }
 
-module.exports = DevGameServer;
+module.exports = DevGameServer;  

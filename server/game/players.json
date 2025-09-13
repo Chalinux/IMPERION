@@ -1,0 +1,85 @@
+{
+  "players": [
+    {
+      "id": "player_1757735851210_7junkix2d",
+      "name": "asdfagsaass",
+      "type": "player",
+      "position": {
+        "x": 20,
+        "y": 4
+      },
+      "color": "#51178f",
+      "joinedAt": 1757737557834,
+      "joinedAtReadable": "13/9/2025, 01:25:57",
+      "lastActivity": 1757737557834,
+      "lastActivityReadable": "13/9/2025, 01:25:57",
+      "isAdmin": false,
+      "isNPC": false
+    },
+    {
+      "id": "player_1757735912484_6hpqb3xbs",
+      "name": "lao",
+      "type": "player",
+      "position": {
+        "x": 15,
+        "y": 40
+      },
+      "color": "#8fb206",
+      "joinedAt": 1757737547720,
+      "joinedAtReadable": "13/9/2025, 01:25:47",
+      "lastActivity": 1757737547720,
+      "lastActivityReadable": "13/9/2025, 01:25:47",
+      "isAdmin": false,
+      "isNPC": false
+    },
+    {
+      "id": "player_1757737509574",
+      "name": "asdfagsaass",
+      "type": "player",
+      "position": {
+        "x": 8,
+        "y": 14
+      },
+      "color": "#89e164",
+      "joinedAt": 1757737509578,
+      "joinedAtReadable": "13/9/2025, 01:25:09",
+      "lastActivity": 1757737509578,
+      "lastActivityReadable": "13/9/2025, 01:25:09",
+      "isAdmin": false,
+      "isNPC": false
+    },
+    {
+      "id": "player_1757737547525",
+      "name": "laosa",
+      "type": "player",
+      "position": {
+        "x": 46,
+        "y": 30
+      },
+      "color": "#35569c",
+      "joinedAt": 1757737547621,
+      "joinedAtReadable": "13/9/2025, 01:25:47",
+      "lastActivity": 1757737547621,
+      "lastActivityReadable": "13/9/2025, 01:25:47",
+      "isAdmin": false,
+      "isNPC": false
+    },
+    {
+      "id": "player_1757737557778",
+      "name": "asdfagsaass",
+      "type": "player",
+      "position": {
+        "x": 46,
+        "y": 19
+      },
+      "color": "#d675aa",
+      "joinedAt": 1757737557781,
+      "joinedAtReadable": "13/9/2025, 01:25:57",
+      "lastActivity": 1757737557781,
+      "lastActivityReadable": "13/9/2025, 01:25:57",
+      "isAdmin": false,
+      "isNPC": false
+    }
+  ],
+  "lastUpdate": 1757737557838
+}

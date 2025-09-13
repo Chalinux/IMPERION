@@ -100,43 +100,44 @@ class DevGameLoop {
     }
     
     processPlayerMovements(globalState, timestamp) {
-        for (const [playerId, player] of globalState.players) {
-            // Simular movimiento aleatorio (en un juego real esto vendría de las acciones del jugador)
-            if (Math.random() < 0.1) { // 10% de probabilidad de movimiento por tick
-                const newX = Math.max(0, Math.min(49, player.position.x + (Math.random() - 0.5) * 2));
-                const newY = Math.max(0, Math.min(49, player.position.y + (Math.random() - 0.5) * 2));
-                
-                this.stateManager.processAction(this.globalRoomId, {
-                    playerId: playerId,
-                    type: 'move',
-                    payload: {
-                        x: Math.round(newX),
-                        y: Math.round(newY)
-                    },
-                    timestamp: timestamp
-                });
-            }
-        }
+        // En un juego 4x, los imperios son estáticos, no se procesan movimientos
+        // Solo asegurarse de que todos los jugadores tengan posición imperial establecida
+        // Los jugadores ya tienen su posición establecida, no es necesario hacer nada adicional
     }
     
     processBuildings(globalState, timestamp) {
+        // Solo generar buildings para NPCs, no para jugadores reales
         for (const [playerId, player] of globalState.players) {
-            // Simular construcción aleatoria
-            if (Math.random() < 0.05) { // 5% de probabilidad de construcción por tick
+            // Solo NPCs pueden construir buildings aleatorios
+            if (!player.isNPC) continue;
+            
+            // Simular construcción aleatoria con menor frecuencia
+            if (Math.random() < 0.01) { // Reducido a 1% de probabilidad de construcción por tick
                 const buildingTypes = ['casa', 'granja', 'mina', 'cuartel'];
                 const type = buildingTypes[Math.floor(Math.random() * buildingTypes.length)];
                 
-                this.stateManager.processAction(this.globalRoomId, {
-                    playerId: playerId,
-                    type: 'build',
-                    payload: {
-                        type: type,
-                        x: Math.floor(Math.random() * 50),
-                        y: Math.floor(Math.random() * 50),
-                        level: 1
-                    },
-                    timestamp: timestamp
-                });
+                // Encontrar la ciudad del NPC
+                let npcCity = null;
+                for (const [entityId, entity] of globalState.entities.entries()) {
+                    if (entity.type === 'ciudad' && entity.owner === playerId) {
+                        npcCity = entity;
+                        break;
+                    }
+                }
+                
+                if (npcCity && npcCity.buildings) {
+                    // Verificar si ya existe un building de este tipo en la ciudad
+                    const existingBuilding = npcCity.buildings.find(b => b.type === type);
+                    if (existingBuilding) {
+                        console.log(`🏗️ NPC ${player.name} ya tiene un ${type} en su ciudad`);
+                        continue; // No crear duplicados
+                    }
+                    
+                    // Usar el método centralizado para crear buildings
+                    this.stateManager.createOrUpdateBuilding(globalState, player, type, 1);
+                    
+                    console.log(`🏗️ NPC ${player.name} construyó un ${type}`);
+                }
             }
         }
     }

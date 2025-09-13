@@ -1,10 +1,14 @@
 export class ProfileManager {
     constructor(game) {
         this.game = game;
+        // Load selected name from localStorage if available
+        const savedName = localStorage.getItem('selectedPlayerName');
+        const savedUserId = localStorage.getItem('selectedPlayerId');
+
         // Default player profile data
         this.playerProfile = {
-            username: 'Rey Theron',
-            userId: 'player_123',
+            username: savedName || 'Rey Theron',
+            userId: savedUserId || 'player_123',
             avatarUrl: 'assets/images/units/milicia1.png', // Default placeholder
             friends: [
                 { id: 'friend1', name: 'Lord Vael', avatar: 'assets/images/units/milicia1.png', status: 'Online' },
@@ -12,12 +16,15 @@ export class ProfileManager {
                 { id: 'friend3', name: 'Sir Kael', avatar: 'assets/images/units/cavalry-sprite.png', status: 'Online' },
             ]
         };
+
+        // Check if player has selected a custom name
+        this.hasSelectedCustomName = savedName && savedName !== 'Rey Theron';
     }
 
     async loadProfile() {
         // Use default profile - no external dependencies
-        this.game.logLoadingStatus("Perfil de usuario cargado: Rey Theron", 'info');
-        
+        this.game.logLoadingStatus(`Perfil de usuario cargado: ${this.playerProfile.username}`, 'info');
+
         /* MPHOOK: Load multiplayer profile data */
         if (this.game.multiplayer) {
             try {
@@ -28,6 +35,26 @@ export class ProfileManager {
             } catch (error) {
                 console.warn('Failed to load multiplayer profile:', error);
             }
+        }
+    }
+
+    /**
+     * Save the selected player name to localStorage
+     */
+    saveSelectedName(name, userId = null) {
+        try {
+            localStorage.setItem('selectedPlayerName', name);
+            if (userId) {
+                localStorage.setItem('selectedPlayerId', userId);
+            }
+            this.playerProfile.username = name;
+            if (userId) {
+                this.playerProfile.userId = userId;
+            }
+            this.hasSelectedCustomName = name && name !== 'Rey Theron';
+            console.log(`Player name saved to localStorage: ${name}`);
+        } catch (error) {
+            console.error('Error saving selected name to localStorage:', error);
         }
     }
 

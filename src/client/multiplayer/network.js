@@ -186,6 +186,19 @@ export class NetworkManager {
         this.socket.on('mapData', (data) => {
             this.adapter.handleMapData(data);
         });
+
+        // Name-related events
+        this.socket.on('nameUniquenessResult', (data) => {
+            this.adapter.handleNameUniquenessResult(data);
+        });
+
+        this.socket.on('setPlayerNameResult', (data) => {
+            this.adapter.handleSetPlayerNameResult(data);
+        });
+
+        this.socket.on('playerNameChanged', (data) => {
+            this.adapter.handlePlayerNameChanged(data);
+        });
     }
     
     // Message sending methods

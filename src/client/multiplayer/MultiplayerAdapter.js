@@ -642,38 +642,28 @@ export class MultiplayerAdapter {
     // Auto-join the global development room
     async autoJoinGlobalRoom() {
         this.logDebug('Starting auto-join process for global room');
-        
+
         if (!this.isConnected) {
             this.logConnectionEvent('Cannot join room - not connected to server');
             return;
         }
-        
+
         try {
             this.logConnectionEvent('Attempting to join global development room...');
-            
-            // Generate a persistent player ID based on username or create one if not exists
+
+            // Clear old localStorage keys from previous system
+            localStorage.removeItem('persistent_player_id');
+            localStorage.removeItem('persistent_player_name');
+            localStorage.removeItem('player_count');
+
+            // Get persistent player ID from localStorage (set by server)
             if (!this.playerId) {
-                const playerName = this.game?.profileManager?.playerProfile?.username || 'Anonymous';
-                
-                // Try to get a persistent ID from localStorage first
-                const persistentId = localStorage.getItem('persistent_player_id');
-                const persistentName = localStorage.getItem('persistent_player_name');
-                
-                if (persistentId && persistentName === playerName) {
-                    // Use the existing persistent ID if the name matches
+                const persistentId = localStorage.getItem('imperion_playerId');
+                if (persistentId) {
                     this.playerId = persistentId;
-                    this.logDebug('Using existing persistent player ID:', this.playerId);
+                    this.logDebug('Using existing persistent player ID from server:', this.playerId);
                 } else {
-                    // Generate a new persistent ID based on the username
-                    const nameHash = this.generateNameHash(playerName);
-                    this.playerId = `player_${nameHash}`;
-                    
-                    // Save to localStorage for future sessions
-                    localStorage.setItem('persistent_player_id', this.playerId);
-                    localStorage.setItem('persistent_player_name', playerName);
-                    
-                    this.logDebug('Generated new persistent player ID:', this.playerId);
-                    this.logDebug('Based on username:', playerName);
+                    this.logDebug('No persistent player ID found - server will generate one');
                 }
             }
             
@@ -691,32 +681,40 @@ export class MultiplayerAdapter {
                 this.logDebug('Saved position from server:', savedPosition);
             }
             
-            // Create a deterministic position based on player ID for consistency
-            const deterministicPosition = this.generateDeterministicPosition(this.playerId);
+            // Create a deterministic position based on player ID for consistency (only if we have saved position)
+            const deterministicPosition = savedPosition ? this.generateDeterministicPosition(this.playerId) : null;
             this.logDebug('Deterministic position based on player ID:', deterministicPosition);
             
             // Use the best available position: saved > deterministic > null
+            // For new players without saved position, don't use deterministic position to ensure random spawn
             const preferredPosition = savedPosition || deterministicPosition;
             
             const joinData = {
                 playerId: this.playerId,
                 name: playerName,
-                roomId: 'dev_global', // Use the global room ID from server
-                isSpectator: false,
                 preferredPosition: preferredPosition // Send the best available position
             };
             
             this.logConnectionEvent('Sending join request:', joinData);
             
             const result = await this.networkManager.sendPromise('join', joinData);
-            if (result.success) {
-                this.game.currentPlayerId = this.playerId; // NEW: Set for unique owner check
-            }
-            if (result.success) {
-                this.game.currentPlayerId = this.playerId; // NEW: Set for unique owner check
-            }
-            if (result.success) {
-                this.game.currentPlayerOwner = this.playerId; // NEW: Set for unique owner check
+
+            // Save the playerId returned by server to localStorage
+            if (result.success && result.playerId) {
+                const oldPlayerId = this.playerId;
+                this.playerId = result.playerId;
+                localStorage.setItem('imperion_playerId', this.playerId);
+                this.logDebug('Player ID received from server and saved:', this.playerId);
+
+                // If playerId changed, clear old position data
+                if (oldPlayerId && oldPlayerId !== this.playerId) {
+                    localStorage.removeItem(`player_position_${oldPlayerId}`);
+                    localStorage.removeItem(`server_player_position_${oldPlayerId}`);
+                    this.logDebug('Cleared old position data for previous player ID:', oldPlayerId);
+                }
+
+                this.game.currentPlayerId = this.playerId; // Set for unique owner check
+                this.game.currentPlayerOwner = this.playerId; // Set for unique owner check
             }
             
             this.logConnectionEvent('Join response received:', result);
@@ -923,12 +921,12 @@ export class MultiplayerAdapter {
     handleMapData(data) {
         try {
             const { mapData, success, error, timestamp } = data;
-            
+
             if (success && mapData) {
                 console.log(`✅ Map data received from server`);
                 // Store map data for use by MapRenderer
                 this.mapData = mapData;
-                
+
                 // If the map renderer exists, update it with the new map data
                 if (this.game.mapRenderer) {
                     this.game.mapRenderer.map = mapData;
@@ -938,7 +936,7 @@ export class MultiplayerAdapter {
                     }
                     this.game.mapRenderer.render();
                 }
-                
+
                 // Emit event for other systems
                 this.emit('mapDataReceived', {
                     mapData,
@@ -947,9 +945,77 @@ export class MultiplayerAdapter {
             } else {
                 console.error(`❌ Error receiving map data from server:`, error);
             }
-            
+
         } catch (error) {
             console.error('❌ Error handling map data:', error);
+        }
+    }
+
+    // Handle name uniqueness result
+    handleNameUniquenessResult(data) {
+        try {
+            const { unique, error } = data;
+
+            if (error) {
+                console.error('❌ Error checking name uniqueness:', error);
+            } else {
+                console.log(`🔍 Name uniqueness result: ${unique ? 'unique' : 'not unique'}`);
+            }
+
+            // Emit event for WelcomeManager
+            this.emit('nameUniquenessResult', { unique, error });
+
+        } catch (error) {
+            console.error('❌ Error handling name uniqueness result:', error);
+        }
+    }
+
+    // Handle set player name result
+    handleSetPlayerNameResult(data) {
+        try {
+            const { success, name, error } = data;
+
+            if (success) {
+                console.log(`✅ Player name set to: ${name}`);
+                // Update local player name
+                this.game.currentPlayerName = name;
+            } else {
+                console.error('❌ Error setting player name:', error);
+            }
+
+            // Emit event for WelcomeManager
+            this.emit('setPlayerNameResult', { success, name, error });
+
+        } catch (error) {
+            console.error('❌ Error handling set player name result:', error);
+        }
+    }
+
+    // Handle player name changed (for other players)
+    handlePlayerNameChanged(data) {
+        try {
+            const { playerId, oldName, newName, timestamp } = data;
+
+            console.log(`📝 Player ${playerId} changed name from "${oldName}" to "${newName}"`);
+
+            // Update local multiplayer players data
+            if (this.game.multiplayerPlayers) {
+                const player = this.game.multiplayerPlayers.get(playerId);
+                if (player) {
+                    player.name = newName;
+                }
+            }
+
+            // Emit event for other systems
+            this.emit('playerNameChanged', {
+                playerId,
+                oldName,
+                newName,
+                timestamp
+            });
+
+        } catch (error) {
+            console.error('❌ Error handling player name changed:', error);
         }
     }
     
@@ -1042,4 +1108,5 @@ export class MultiplayerAdapter {
             return null;
         }
     }
+    
 }

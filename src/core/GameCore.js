@@ -149,28 +149,7 @@ export class ImperionGame {
             const { MultiplayerAdapter } = await import('../client/multiplayer/MultiplayerAdapter.js');
             this.multiplayer = new MultiplayerAdapter(this);
             this.logLoadingStatus('Sistema multiplayer inicializado.', 'success');
-            
-            // Wait for multiplayer adapter to join the room before generating the map
-            await new Promise((resolve) => {
-                if (this.multiplayer.currentRoom) {
-                    resolve();
-                } else {
-                    this.multiplayer.on('roomJoined', () => {
-                        resolve();
-                    });
-                }
-            });
-            
-            // Request map data from server after joining the room
-            if (this.multiplayer && this.multiplayer.isConnected) {
-                this.multiplayer.requestMapData();
-                // Wait a bit for the map data to be received
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
-            
-            // Generate map after multiplayer adapter has joined the room
-            this.mapRenderer.generateMap();
-            
+
             // Setup multiplayer status indicator
             this.setupMultiplayerStatusIndicator();
 
@@ -184,26 +163,37 @@ export class ImperionGame {
             }
 
             this.logLoadingStatus('Configurando el lienzo del mapa.', 'info');
-            // Delegate to MapInteractionManager
-            this.mapRenderer.mapInteractionManager.centerOnPlayerCity();
-            this.logLoadingStatus('Centrando mapa en la ciudad del jugador.', 'info');
+            // Generate map immediately (will be updated when we join)
+            this.mapRenderer.generateMap();
+            this.mapRenderer.render();
+
             // Call the modularized event listener setups
             this.logLoadingStatus('Configurando escuchadores de eventos de la UI...', 'info');
-            this.setupEventListeners(); 
+            this.setupEventListeners();
             this.logLoadingStatus('Configurando el slider de noticias...', 'info');
             this.newsManager.setupNewsSlider();
             this.logLoadingStatus('Inicializando vista de juego principal...', 'info');
             this.switchGameView(this.currentView);
-            this.mapRenderer.render();
             this.newsManager.addNews("Imperio inicializado - ¡Comienza tu conquista!");
             this.logLoadingStatus('Inicializando sistema de comercio...', 'info');
             this.tradeSystem.init();
             this.logLoadingStatus('Configurando sistema de chat...', 'info');
             this.chatSystem.setupChatSystem(); // Ensure ChatSystem's setup is called to make it interactive.
-            this.logLoadingStatus('Sistema de juego inicializado. Mostrando modal de bienvenida.', 'success');
+            this.logLoadingStatus('Sistema de juego inicializado.', 'success');
+
+            // Check if player already has a custom name selected (either in this session or previously)
+            const hasNameInSession = sessionStorage.getItem('playerNameSelected') === 'true';
+            const hasCustomName = this.profileManager.hasSelectedCustomName;
             
-            // Show welcome modal after all initialization
-            this.welcomeManager.showWelcomeModal();
+            if (hasNameInSession || hasCustomName) {
+                this.logLoadingStatus('Nombre personalizado encontrado, uniendo al servidor...', 'info');
+                // Player already has a custom name, join directly
+                this.joinWithExistingName();
+            } else {
+                this.logLoadingStatus('Mostrando modal de selección de nombre.', 'info');
+                // Show name selection modal first
+                this.welcomeManager.showNameSelectionModal();
+            }
             this.logLoadingStatus('Iniciando bucle principal del juego.', 'info');
             
             // Start game loop
@@ -416,6 +406,12 @@ export class ImperionGame {
         // Only process map clicks if mapView is active
         if (this.currentView !== 'map') return;
 
+        // Prevent interaction if player hasn't selected a name yet
+        if (!this.welcomeManager?.playerNameSelected) {
+            console.log('Player must select a name before interacting with the map');
+            return;
+        }
+
         const rect = this.canvas.getBoundingClientRect();
         const clickX = e.clientX - rect.left;
         const clickY = e.clientY - rect.top;
@@ -594,22 +590,22 @@ export class ImperionGame {
     // Setup multiplayer status indicator
     setupMultiplayerStatusIndicator() {
         if (!this.multiplayer) return;
-        
+
         const statusIndicator = document.getElementById('statusIndicator');
         const playerIdDisplay = document.getElementById('playerIdDisplay');
         const roomInfo = document.getElementById('roomInfo');
-        
+
         if (!statusIndicator) {
             console.warn('Multiplayer status indicator not found in DOM');
             return;
         }
-        
+
         // Update status based on multiplayer events
         this.multiplayer.on('connected', () => {
             statusIndicator.className = 'status-indicator connected';
             statusIndicator.querySelector('.status-icon').textContent = '🔗';
             statusIndicator.querySelector('.status-text').textContent = 'Conectado';
-            
+
             if (playerIdDisplay && this.multiplayer.playerId) {
                 playerIdDisplay.textContent = `ID: ${this.multiplayer.playerId.substr(0, 8)}...`;
             }
@@ -617,12 +613,12 @@ export class ImperionGame {
                 roomInfo.textContent = `Sala: ${this.multiplayer.currentRoom}`;
             }
         });
-        
+
         this.multiplayer.on('disconnected', () => {
             statusIndicator.className = 'status-indicator disconnected';
             statusIndicator.querySelector('.status-icon').textContent = '🔌';
             statusIndicator.querySelector('.status-text').textContent = 'Desconectado';
-            
+
             if (playerIdDisplay) {
                 playerIdDisplay.textContent = '';
             }
@@ -630,13 +626,13 @@ export class ImperionGame {
                 roomInfo.textContent = '';
             }
         });
-        
+
         this.multiplayer.on('connecting', () => {
             statusIndicator.className = 'status-indicator connecting';
             statusIndicator.querySelector('.status-icon').textContent = '⏳';
             statusIndicator.querySelector('.status-text').textContent = 'Conectando...';
         });
-        
+
         this.multiplayer.on('roomJoined', (data) => {
             if (data.success) {
                 if (playerIdDisplay && this.multiplayer.playerId) {
@@ -647,10 +643,98 @@ export class ImperionGame {
                 }
             }
         });
-        
+
         // Set initial state
         statusIndicator.className = 'status-indicator connecting';
         statusIndicator.querySelector('.status-icon').textContent = '⏳';
         statusIndicator.querySelector('.status-text').textContent = 'Conectando...';
+    }
+
+    // Join multiplayer room with existing name
+    async joinWithExistingName() {
+        try {
+            const playerName = this.profileManager.playerProfile.username;
+            this.logLoadingStatus(`Intentando unirse a la sala con nombre: ${playerName}`, 'info');
+            
+            // Ensure multiplayer is connected before attempting to join
+            if (!this.multiplayer.isConnected) {
+                this.logLoadingStatus('Conectando al servidor...', 'info');
+                await new Promise((resolve, reject) => {
+                    const connectionTimeout = setTimeout(() => {
+                        reject(new Error('Timeout de conexión'));
+                    }, 10000);
+                    
+                    const checkConnection = () => {
+                        if (this.multiplayer.isConnected) {
+                            clearTimeout(connectionTimeout);
+                            resolve();
+                        } else {
+                            setTimeout(checkConnection, 100);
+                        }
+                    };
+                    
+                    checkConnection();
+                });
+            }
+            
+            this.logLoadingStatus('Uniendo a la sala global...', 'info');
+            const joinSuccess = await this.multiplayer.joinRoom('dev_global', playerName);
+
+            if (joinSuccess) {
+                this.welcomeManager.playerNameSelected = true;
+                this.logLoadingStatus('Nombre ya seleccionado, uniendo directamente al servidor.', 'success');
+
+                // Wait for room to be fully joined with timeout
+                await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        reject(new Error('Timeout al unirse a la sala'));
+                    }, 5000);
+                    
+                    if (this.multiplayer.currentRoom) {
+                        clearTimeout(timeout);
+                        resolve();
+                    } else {
+                        this.multiplayer.once('roomJoined', () => {
+                            clearTimeout(timeout);
+                            resolve();
+                        });
+                    }
+                });
+
+                // Request map data only if connected
+                if (this.multiplayer.isConnected) {
+                    this.logLoadingStatus('Solicitando datos del mapa...', 'info');
+                    this.multiplayer.requestMapData();
+                    // Wait a bit for the map data
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+
+                // Center on player city
+                if (this.mapRenderer && this.mapRenderer.mapInteractionManager) {
+                    this.logLoadingStatus('Centrando en la ciudad del jugador...', 'info');
+                    this.mapRenderer.mapInteractionManager.centerOnPlayerCity();
+                    this.mapRenderer.render();
+                }
+
+                // Only show welcome modal if it hasn't been shown before in this session
+                const hasShownWelcome = sessionStorage.getItem('hasShownWelcomeModal');
+                if (!hasShownWelcome) {
+                    this.welcomeManager.showWelcomeModal();
+                    sessionStorage.setItem('hasShownWelcomeModal', 'true');
+                    this.logLoadingStatus('Mostrando modal de bienvenida.', 'info');
+                } else {
+                    this.logLoadingStatus('Modal de bienvenida ya mostrado en esta sesión.', 'info');
+                }
+                
+                this.logLoadingStatus('Unido al servidor con nombre existente.', 'success');
+            } else {
+                throw new Error('Falló la unión a la sala');
+            }
+        } catch (error) {
+            console.error('Error joining with existing name:', error);
+            this.logLoadingStatus(`Error al unirse con nombre existente: ${error.message}, mostrando selección de nombre.`, 'error');
+            // Fallback to name selection
+            this.welcomeManager.showNameSelectionModal();
+        }
     }
 }

@@ -9,6 +9,7 @@ const DevGameServer = require('./game/DevGameServer');
 const StateManager = require('./game/StateManager');
 const ChatManager = require('./game/ChatManager');
 const SpectatorManager = require('./game/SpectatorManager');
+const PlayerPersistenceManager = require('./game/PlayerPersistenceManager');
 const persistence = require('./game/devPersistence');
 const gameLoop = require('./game/devGameLoop');
 
@@ -32,7 +33,8 @@ class MultiplayerServer {
         this.stateManager = new StateManager();
         this.chatManager = new ChatManager();
         this.spectatorManager = new SpectatorManager();
-        this.devGameServer = new DevGameServer(this.io, this.stateManager, this.chatManager, this.spectatorManager);
+        this.playerPersistenceManager = new PlayerPersistenceManager();
+        this.devGameServer = new DevGameServer(this.io, this.stateManager, this.chatManager, this.spectatorManager, this.playerPersistenceManager);
         this.gameServer = new GameServer(this.io, this.devGameServer, this.stateManager, this.chatManager, this.spectatorManager);
         
         // Configurar CORS para peticiones HTTP
@@ -50,14 +52,27 @@ class MultiplayerServer {
         // Middleware para manejar JSON y formularios
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
-        
+
         // Configurar rutas
         this.setupRoutes();
-        
+
+        // Cargar datos persistentes de jugadores
+        this.loadPersistentData();
+
         // Iniciar bucle del juego
         this.startGameLoop();
-        
+
         console.log('🚀 Servidor multiplayer iniciado');
+    }
+
+    async loadPersistentData() {
+        try {
+            // Cargar datos de jugadores persistentes
+            await this.playerPersistenceManager.loadPlayers();
+            console.log('📖 Datos persistentes de jugadores cargados');
+        } catch (error) {
+            console.error('❌ Error al cargar datos persistentes:', error);
+        }
     }
     
     setupRoutes() {

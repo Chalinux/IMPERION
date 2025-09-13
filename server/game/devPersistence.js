@@ -109,7 +109,6 @@ class DevPersistenceManager {
                 this.memoryStorage = gameState;
                 this.memoryChatStorage = this.chatManager && this.chatManager.getGlobalChat ? this.chatManager.getGlobalChat(100) : [];
                 
-                console.log('💾 Estado global guardado en memoria');
             }
             
         } catch (error) {
