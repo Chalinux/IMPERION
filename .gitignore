@@ -1,6 +1,8 @@
 # Dependencias
 node_modules/
 vendor/
+# Ignorar configuración local de Roo
+.roo/
 
 # Archivos de entorno
 .env
